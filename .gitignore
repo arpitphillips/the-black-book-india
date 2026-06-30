@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Zip packages
+*.zip
+
+# Editor directories
+.vscode/
+.idea/
+
+# Local environment files
+.env
+.env.local
+
+# Node (if ever added)
+node_modules/
