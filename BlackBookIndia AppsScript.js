@@ -23,7 +23,7 @@ var SEND_EMAIL_NOTIFICATIONS = true;
 // Create a folder in Drive, open it, and grab the ID from the URL:
 // https://drive.google.com/drive/folders/ >>>THIS PART<<<
 // Leave blank to save photos in the root of your Drive.
-var PHOTO_FOLDER_ID = '';
+var PHOTO_FOLDER_ID = 'https://drive.google.com/drive/folders/1aUNdn2h2kxndFQs0XI7Zlo_eKN1c9sbE';
 
 // ── COLUMN HEADERS ────────────────────────────────────────────────
 // These are written to Row 1 automatically when you run setup().
