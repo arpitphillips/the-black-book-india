@@ -1,6 +1,6 @@
 // ── CONFIGURATION ─────────────────────────────────────────────────
 // REPLACE THIS URL with your actual Google Apps Script Web App URL
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9Adfu4sCedQWvcObF6Mhx53O-9KRmJBzbwA2FPorfG1buOIhRKNASqd9Dg8AuDzwE0A/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzu5qkb7auI5GmhA_SpHV4BC8UJzCNW-tblios3iWnMXlB7gRF-dlSvFRc7WKdH-z34uA/exec';
 
 // SUPABASE CONFIGURATION
 // Replace these with your actual Supabase Project URL and Anon Key
