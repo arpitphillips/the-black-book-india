@@ -1,10 +1,21 @@
 // ── CONFIGURATION ─────────────────────────────────────────────────
 // REPLACE THIS URL with your actual Google Apps Script Web App URL
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFXOBghj8GLiuIldrXa9tbYaIntjPvxNlIjFGd15-91QblBuj6W4mqqS5LC_mP6-bY/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9Adfu4sCedQWvcObF6Mhx53O-9KRmJBzbwA2FPorfG1buOIhRKNASqd9Dg8AuDzwE0A/exec';
+
+// SUPABASE CONFIGURATION
+// Replace these with your actual Supabase Project URL and Anon Key
+const SUPABASE_URL = 'https://fiwzgtxfabzlxxnqgjhd.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_uc54LqhKfYpHxK42zvDLIA_Bgz4WOtx';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ──────────────────────────────────────────────────────────────────
 
+// Anti-spam: record when the page loaded
+const PAGE_LOAD_TIME = Date.now();
+
 let currentStep = 1;
+let previousStep = 1;
 const totalSteps = 7;
+const DRAFT_KEY = 'blackbook_draft';
 
 // DOM Elements
 const form = document.getElementById('submission-form');
@@ -12,10 +23,78 @@ const nextBtn = document.getElementById('next-btn');
 const prevBtn = document.getElementById('prev-btn');
 const submitBtn = document.getElementById('submit-btn');
 const progressBar = document.getElementById('progress-bar');
+const progressWrapper = document.querySelector('.progress-wrapper');
 const statusMessage = document.getElementById('status-message');
 const stepIndicators = document.querySelectorAll('.step-indicator');
 
-// Toggle Conditional Fields
+// ── Draft Save / Restore (localStorage) ──────────────────────────
+// Saves form progress so users don't lose data if they close the tab.
+
+function saveDraft() {
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    // Don't save file inputs — they can't be restored
+    delete data.profilePhoto;
+    data._step = currentStep;
+    // Save checkbox states explicitly (FormData skips unchecked)
+    data._openToFeatures = document.getElementById('openToFeatures').checked;
+    data._consentGiven = document.getElementById('consentGiven').checked;
+    try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    } catch (e) {
+        // localStorage full or unavailable — silently ignore
+    }
+}
+
+function restoreDraft() {
+    try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+
+        // Restore text/select fields
+        Object.entries(data).forEach(([key, value]) => {
+            if (key.startsWith('_')) return;
+            const el = form.elements[key];
+            if (!el) return;
+            if (el.type === 'radio') {
+                const radio = form.querySelector(`input[name="${key}"][value="${value}"]`);
+                if (radio) radio.checked = true;
+            } else if (el.type !== 'file' && el.type !== 'checkbox') {
+                el.value = value;
+            }
+        });
+
+        // Restore checkbox states
+        if (data._openToFeatures !== undefined) {
+            document.getElementById('openToFeatures').checked = data._openToFeatures;
+        }
+        if (data._consentGiven !== undefined) {
+            document.getElementById('consentGiven').checked = data._consentGiven;
+        }
+
+        // Restore conditional field visibility
+        if (data.hasSecondary === 'Yes') toggleSecondaryRoles(true);
+        if (data.hasPublication === 'Yes') togglePublications(true);
+        if (data.primaryProfession === 'other') {
+            document.getElementById('otherProfessionGroup').classList.remove('hidden');
+        }
+
+        // Restore step position
+        if (data._step && data._step >= 1 && data._step <= totalSteps) {
+            currentStep = data._step;
+            previousStep = data._step;
+        }
+    } catch (e) {
+        localStorage.removeItem(DRAFT_KEY);
+    }
+}
+
+function clearDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+}
+
+// ── Toggle Conditional Fields ────────────────────────────────────
 function toggleSecondaryRoles(show) {
     const group = document.getElementById('secondaryRolesGroup');
     if (show) {
@@ -47,11 +126,212 @@ document.getElementById('primaryProfession').addEventListener('change', function
     }
 });
 
-// Update UI based on current step
+// ── Photo Upload Handling ─────────────────────────────────────────
+const photoUploadZone = document.getElementById('photoUploadZone');
+const photoInput = document.getElementById('profilePhoto');
+const photoPlaceholder = document.getElementById('photoPlaceholder');
+const photoPreview = document.getElementById('photoPreview');
+const photoPreviewImg = document.getElementById('photoPreviewImg');
+const photoRemoveBtn = document.getElementById('photoRemoveBtn');
+
+let profilePhotoBase64 = null;
+let profilePhotoName = null;
+let profilePhotoType = null;
+
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_PHOTO_DIMENSION = 1920; // Resize to max 1920px on longest side
+
+const PLACEHOLDER_HTML = '<i class="fa-solid fa-cloud-arrow-up"></i>'
+    + '<p>Drag & drop your photo here</p>'
+    + '<span class="help-text">or click to browse · JPG, PNG, WebP · Max 5 MB</span>';
+
+/**
+ * Resize an image client-side using canvas to reduce upload payload.
+ * Always outputs JPEG at 85% quality. Returns a data URL.
+ */
+function resizeImage(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
+            let { width, height } = img;
+
+            // Downscale if larger than max dimension
+            if (width > MAX_PHOTO_DIMENSION || height > MAX_PHOTO_DIMENSION) {
+                if (width > height) {
+                    height = Math.round((height / width) * MAX_PHOTO_DIMENSION);
+                    width = MAX_PHOTO_DIMENSION;
+                } else {
+                    width = Math.round((width / height) * MAX_PHOTO_DIMENSION);
+                    height = MAX_PHOTO_DIMENSION;
+                }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error('Failed to load image.'));
+        };
+
+        img.src = objectUrl;
+    });
+}
+
+async function handlePhotoFile(file) {
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        showFieldError(photoUploadZone, 'Please upload a JPG, PNG, or WebP image.');
+        return;
+    }
+    if (file.size > MAX_PHOTO_SIZE) {
+        showFieldError(photoUploadZone, 'Photo must be under 5 MB.');
+        return;
+    }
+
+    // Show processing state
+    photoPlaceholder.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><p>Processing photo…</p>';
+
+    try {
+        const dataUrl = await resizeImage(file);
+        profilePhotoBase64 = dataUrl.split(',')[1];
+        profilePhotoName = file.name;
+        profilePhotoType = 'image/jpeg'; // Always JPEG after canvas conversion
+
+        photoPreviewImg.src = dataUrl;
+        photoPlaceholder.innerHTML = PLACEHOLDER_HTML;
+        photoPlaceholder.classList.add('hidden');
+        photoPreview.classList.remove('hidden');
+        clearFieldError(photoUploadZone);
+    } catch (err) {
+        photoPlaceholder.innerHTML = PLACEHOLDER_HTML;
+        showFieldError(photoUploadZone, 'Failed to process image. Please try another file.');
+    }
+}
+
+function removePhoto() {
+    profilePhotoBase64 = null;
+    profilePhotoName = null;
+    profilePhotoType = null;
+    photoInput.value = '';
+    photoPreviewImg.src = '';
+    photoPreview.classList.add('hidden');
+    photoPlaceholder.classList.remove('hidden');
+}
+
+// Click to upload
+photoInput.addEventListener('change', (e) => {
+    handlePhotoFile(e.target.files[0]);
+});
+
+// Remove button
+photoRemoveBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    removePhoto();
+});
+
+// Drag and drop
+photoUploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    photoUploadZone.classList.add('drag-over');
+});
+
+photoUploadZone.addEventListener('dragleave', () => {
+    photoUploadZone.classList.remove('drag-over');
+});
+
+photoUploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    photoUploadZone.classList.remove('drag-over');
+    handlePhotoFile(e.dataTransfer.files[0]);
+});
+
+// ── Field-level Error Messages ────────────────────────────────────
+
+function showFieldError(input, message) {
+    clearFieldError(input);
+    const errorEl = document.createElement('span');
+    errorEl.className = 'field-error';
+    errorEl.textContent = message;
+    const parent = input.closest('.form-group') || input.parentElement;
+    parent.appendChild(errorEl);
+}
+
+function clearFieldError(input) {
+    const parent = input.closest('.form-group') || input.parentElement;
+    const existing = parent.querySelector('.field-error');
+    if (existing) existing.remove();
+}
+
+function getValidationMessage(input) {
+    let val = input.value.trim();
+
+    if (input.type === 'checkbox' && input.required && !input.checked) {
+        return 'You must accept to continue.';
+    }
+
+    if (input.required) {
+        // Treat "+91" or "+" with no actual number as empty
+        const cleanVal = val.replace(/[\s\+]/g, '');
+        if (!val || (input.type === 'tel' && (cleanVal === '91' || cleanVal === ''))) {
+            return 'This field is required.';
+        }
+    }
+
+    // Only validate format if the field actually has a value (and isn't just the default prefix)
+    const cleanVal = val.replace(/[\s\+]/g, '');
+    if (val && !(input.type === 'tel' && (cleanVal === '91' || cleanVal === ''))) {
+        if (input.type === 'email' && !input.validity.valid) {
+            return 'Please enter a valid email address.';
+        }
+        if (input.type === 'tel') {
+            const digitsOnly = val.replace(/\D/g, '');
+            const noSpaceVal = val.replace(/\s/g, '');
+
+            if (noSpaceVal.startsWith('+91')) {
+                if (digitsOnly.length !== 12) { // 91 + 10 digits
+                    return 'Indian phone numbers must be exactly 10 digits after +91.';
+                }
+            } else {
+                if (!val.startsWith('+')) {
+                    return 'Please include a country code starting with "+" (e.g. +91, +1).';
+                }
+                if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+                    return 'Please enter a valid phone number (7–15 digits) with country code.';
+                }
+            }
+        }
+        if (input.type === 'url' && !input.validity.valid) {
+            return 'Please enter a valid URL (e.g. https://example.com).';
+        }
+    }
+
+    return '';
+}
+
+// ── Update UI ─────────────────────────────────────────────────────
+
 function updateUI() {
-    // Hide all steps, show current
-    document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
-    document.getElementById(`step-${currentStep}`).classList.add('active');
+    // Direction-aware animation class
+    const direction = currentStep > previousStep ? 'slide-in-right' : 'slide-in-left';
+
+    // Hide all steps, show current with animation
+    document.querySelectorAll('.form-step').forEach(step => {
+        step.classList.remove('active', 'slide-in-right', 'slide-in-left');
+    });
+    const activeStep = document.getElementById(`step-${currentStep}`);
+    activeStep.classList.add('active', direction);
+
+    previousStep = currentStep;
 
     // Update Progress Bar
     const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
@@ -68,11 +348,7 @@ function updateUI() {
     });
 
     // Toggle Buttons
-    if (currentStep === 1) {
-        prevBtn.classList.add('hidden');
-    } else {
-        prevBtn.classList.remove('hidden');
-    }
+    prevBtn.classList.toggle('hidden', currentStep === 1);
 
     if (currentStep === totalSteps) {
         nextBtn.classList.add('hidden');
@@ -86,61 +362,73 @@ function updateUI() {
     document.querySelector('.app-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Validate Current Step
+// ── Validate Current Step ─────────────────────────────────────────
+
 function validateStep() {
     const currentStepEl = document.getElementById(`step-${currentStep}`);
-    const inputs = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
+    const inputs = currentStepEl.querySelectorAll('input, select, textarea');
     let isValid = true;
+    let firstInvalid = null;
+
+    // Clear previous error messages on this step
+    currentStepEl.querySelectorAll('.field-error').forEach(el => el.remove());
 
     inputs.forEach(input => {
-        if (input.type === 'checkbox') {
-            if (!input.checked) {
-                isValid = false;
-                input.classList.add('touched');
-            } else {
-                input.classList.remove('touched');
-            }
-        } else if (!input.value.trim()) {
+        const message = getValidationMessage(input);
+        if (message) {
             isValid = false;
             input.classList.add('touched');
+            showFieldError(input, message);
+            if (!firstInvalid) firstInvalid = input;
         } else {
             input.classList.remove('touched');
+            clearFieldError(input);
         }
     });
 
-    if (!isValid) {
-        // Find the first invalid input and focus it
-        const firstInvalid = currentStepEl.querySelector('input.touched, select.touched, textarea.touched');
-        if (firstInvalid) {
-            firstInvalid.focus();
-        }
+    if (firstInvalid) {
+        firstInvalid.focus();
     }
 
     return isValid;
 }
 
-// Add touched class on blur for inline validation
+// Inline validation on blur (shows errors immediately when leaving a field)
 form.querySelectorAll('input, select, textarea').forEach(input => {
     input.addEventListener('blur', () => {
-        if (input.hasAttribute('required') && !input.value.trim()) {
+        const message = getValidationMessage(input);
+
+        if (message) {
             input.classList.add('touched');
+            showFieldError(input, message);
         } else {
             input.classList.remove('touched');
+            clearFieldError(input);
+        }
+    });
+
+    // Clear error immediately when user starts correcting
+    input.addEventListener('input', () => {
+        if (input.classList.contains('touched') && input.value.trim() && input.validity.valid) {
+            input.classList.remove('touched');
+            clearFieldError(input);
         }
     });
 });
 
-// Next Button Click
+// ── Navigation ────────────────────────────────────────────────────
+
 nextBtn.addEventListener('click', () => {
     if (validateStep()) {
         currentStep++;
+        saveDraft();
         updateUI();
     }
 });
 
-// Previous Button Click
 prevBtn.addEventListener('click', () => {
     currentStep--;
+    saveDraft();
     updateUI();
 });
 
@@ -156,20 +444,26 @@ form.addEventListener('keydown', (e) => {
     }
 });
 
-// Form Submission
+// ── Form Submission ───────────────────────────────────────────────
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!validateStep()) return;
 
-    if (APPS_SCRIPT_URL === 'YOUR_WEB_APP_URL_HERE') {
-        alert("Configuration Error: Please replace APPS_SCRIPT_URL in script.js with your actual Google Apps Script Web App URL.");
-        return;
-    }
-
     // Prepare data
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
+
+    // Remove the raw file field (we send base64 instead)
+    delete data.profilePhoto;
+
+    // Attach photo data if uploaded
+    if (profilePhotoBase64) {
+        data.photoBase64 = profilePhotoBase64;
+        data.photoFileName = profilePhotoName;
+        data.photoMimeType = profilePhotoType;
+    }
 
     // Handle unchecked checkboxes (FormData skips them)
     if (!data.hasSecondary) data.hasSecondary = "No";
@@ -177,8 +471,13 @@ form.addEventListener('submit', async (e) => {
     if (!data.openToFeatures) data.openToFeatures = "No";
     if (!data.consentGiven) data.consentGiven = "No";
 
+    // Anti-spam: include honeypot value and elapsed time
+    data._honeypot = data.company || '';
+    delete data.company;
+    data._elapsedSeconds = Math.floor((Date.now() - PAGE_LOAD_TIME) / 1000);
+
     // UI Feedback
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting…';
     submitBtn.disabled = true;
     prevBtn.disabled = true;
     statusMessage.className = 'hidden';
@@ -187,8 +486,6 @@ form.addEventListener('submit', async (e) => {
         const response = await fetch(APPS_SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify(data),
-            // The following header might cause CORS preflight issues depending on how GAS is set up.
-            // Text/plain is a common workaround for GAS CORS.
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8',
             }
@@ -197,8 +494,57 @@ form.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (result.result === 'success') {
-            // Hide form, show success screen
-            document.getElementById('submission-form').classList.add('hidden');
+            // 2. Submit to Supabase (Dual Submission)
+            if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+                const { error: supabaseError } = await supabaseClient
+                    .from('submissions')
+                    .insert([{
+                        submission_ref: result.id,
+                        fname: data.fname,
+                        lname: data.lname,
+                        display_name: data.displayName,
+                        city: data.city,
+                        state: data.state,
+                        work_location: data.workLocation,
+                        phone: data.phone,
+                        email: data.email,
+                        primary_profession: data.primaryProfession,
+                        other_profession: data.otherProfession,
+                        has_secondary: data.hasSecondary,
+                        secondary_roles: data.secondaryRoles,
+                        genres: data.genres,
+                        genre_generic: data.genreGeneric,
+                        experience_years: data.experienceYears,
+                        institution: data.institution,
+                        awards: data.awards,
+                        has_publication: data.hasPublication,
+                        publications: data.publications,
+                        budget_range: data.budgetRange,
+                        clients: data.clients,
+                        industries: data.industries,
+                        website: data.website,
+                        studio_website: data.studioWebsite,
+                        instagram: data.instagram,
+                        vimeo: data.vimeo,
+                        linkedin: data.linkedin,
+                        bio: data.bio,
+                        open_to: data.openTo,
+                        photo_base64: data.photoBase64,
+                        open_to_features: data.openToFeatures === 'on' ? 'Yes' : data.openToFeatures,
+                        consent_given: data.consentGiven === 'on' ? 'Yes' : data.consentGiven
+                    }]);
+
+                if (supabaseError) {
+                    console.error('Supabase Insert Error:', supabaseError);
+                }
+            }
+
+            // Clear saved draft on successful submission
+            clearDraft();
+
+            // Hide form and progress bar, show success screen
+            form.classList.add('hidden');
+            progressWrapper.classList.add('hidden');
             document.getElementById('submission-ref-id').textContent = result.id;
             document.getElementById('success-screen').classList.remove('hidden');
         } else {
@@ -217,5 +563,23 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// Initialize UI
+// ── Phone Number UX ───────────────────────────────────────────────
+const phoneInput = document.getElementById('phone');
+
+phoneInput.addEventListener('input', (e) => {
+    let val = e.target.value;
+
+    // Smart auto-prefix: If they type a single digit 6-9 (Indian mobile), prepend +91
+    if (val.length === 1 && /[6-9]/.test(val)) {
+        e.target.value = '+91 ' + val;
+    }
+
+    // If they type 0 as first digit, assume they meant an Indian number
+    if (val === '0') {
+        e.target.value = '+91 ';
+    }
+});
+
+// ── Initialize ────────────────────────────────────────────────────
+restoreDraft();
 updateUI();

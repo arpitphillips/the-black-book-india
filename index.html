@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Black Book India — Creative Professional Directory</title>
-    <meta name="description" content="Join The Black Book India — the premier directory for India's creative professionals. Register as a photographer, filmmaker, designer, makeup artist, and more.">
+    <meta name="description"
+        content="Join The Black Book India — the premier directory for India's creative professionals. Register as a photographer, filmmaker, designer, makeup artist, and more.">
     <!-- Open Graph / Social Sharing -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="The Black Book India — Creative Professional Directory">
-    <meta property="og:description" content="India's premier directory for creative professionals. Photographers, filmmakers, designers, and more.">
+    <meta property="og:description"
+        content="India's premier directory for creative professionals. Photographers, filmmakers, designers, and more.">
     <meta property="og:locale" content="en_IN">
     <!-- Favicon: gold symbol -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,11 +23,14 @@
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <!-- Supabase SDK via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
     <div class="background-overlay"></div>
     <div class="app-container">
-        
+
         <header class="app-header">
             <h1 class="logo">THE BLACK BOOK<span>.</span></h1>
             <p class="subtitle">India's Premier Creative Directory</p>
@@ -45,14 +52,18 @@
             </div>
 
             <form id="submission-form" novalidate>
-                
+                <!-- Honeypot anti-spam: invisible to humans, bots fill it -->
+                <div style="position: absolute; left: -9999px; top: -9999px;" aria-hidden="true">
+                    <input type="text" name="company" id="honeypot-field" tabindex="-1" autocomplete="off">
+                </div>
+
                 <!-- STEP 1: IDENTITY -->
                 <div class="form-step active" id="step-1">
                     <div class="step-header">
                         <h2>Identity & Location</h2>
                         <p>Let's start with the basics.</p>
                     </div>
-                    
+
                     <div class="form-group row">
                         <div class="col">
                             <label for="fname">First Name *</label>
@@ -67,6 +78,8 @@
                     <div class="form-group">
                         <label for="displayName">Display Name / Moniker</label>
                         <input type="text" id="displayName" name="displayName" placeholder="How you want to be known">
+                        <span class="help-text">A stage name, brand name, or alias you're known by
+                            professionally.</span>
                     </div>
 
                     <div class="form-group row">
@@ -82,7 +95,8 @@
 
                     <div class="form-group">
                         <label for="workLocation">Available to Work In</label>
-                        <input type="text" id="workLocation" name="workLocation" placeholder="e.g. Worldwide, India only, Specific cities">
+                        <input type="text" id="workLocation" name="workLocation"
+                            placeholder="e.g. Worldwide, India only, Specific cities">
                     </div>
 
                     <div class="form-group row">
@@ -92,13 +106,9 @@
                         </div>
                         <div class="col">
                             <label for="phone">Phone Number *</label>
-                            <input type="tel" id="phone" name="phone" required placeholder="+91 98765 43210" pattern="[\+]?[\d\s\-\(\)]{7,15}" title="Please enter a valid phone number (7–15 digits)">
+                            <input type="tel" id="phone" name="phone" required placeholder="+91 98765 43210"
+                                value="+91 ">
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="website">Personal Website</label>
-                        <input type="url" id="website" name="website" placeholder="https://yoursite.com">
                     </div>
                 </div>
 
@@ -153,14 +163,17 @@
                     <div class="form-group radio-group">
                         <label>Do you have secondary roles/professions?</label>
                         <div class="options">
-                            <label><input type="radio" name="hasSecondary" value="Yes" onchange="toggleSecondaryRoles(true)"> Yes</label>
-                            <label><input type="radio" name="hasSecondary" value="No" onchange="toggleSecondaryRoles(false)" checked> No</label>
+                            <label><input type="radio" name="hasSecondary" value="Yes"
+                                    onchange="toggleSecondaryRoles(true)"> Yes</label>
+                            <label><input type="radio" name="hasSecondary" value="No"
+                                    onchange="toggleSecondaryRoles(false)" checked> No</label>
                         </div>
                     </div>
 
                     <div class="form-group hidden" id="secondaryRolesGroup">
                         <label for="secondaryRoles">Secondary Roles</label>
-                        <input type="text" id="secondaryRoles" name="secondaryRoles" placeholder="e.g. Photographer, Drone Operator">
+                        <input type="text" id="secondaryRoles" name="secondaryRoles"
+                            placeholder="e.g. Photographer, Drone Operator">
                     </div>
                 </div>
 
@@ -168,18 +181,22 @@
                 <div class="form-step" id="step-3">
                     <div class="step-header">
                         <h2>Specialisation</h2>
-                        <p>Niche down into your specific genres and styles.</p>
+                        <p>Help clients find you by describing what you do best.</p>
                     </div>
 
                     <div class="form-group">
                         <label for="genres">Specialisation / Genres</label>
-                        <input type="text" id="genres" name="genres" placeholder="e.g. Portrait, Commercial, Documentary">
-                        <span class="help-text">Comma separated</span>
+                        <input type="text" id="genres" name="genres"
+                            placeholder="e.g. Portrait, Commercial, Documentary">
+                        <span class="help-text">Quick searchable tags — comma separated.</span>
                     </div>
 
                     <div class="form-group">
                         <label for="genreGeneric">Specialisation (Free Text)</label>
-                        <textarea id="genreGeneric" name="genreGeneric" rows="3" placeholder="Describe your unique style or niche in detail..."></textarea>
+                        <textarea id="genreGeneric" name="genreGeneric" rows="3"
+                            placeholder="Describe your unique style or niche in detail..."></textarea>
+                        <span class="help-text">Describe your niche in your own words — what makes your work
+                            distinct?</span>
                     </div>
                 </div>
 
@@ -221,26 +238,31 @@
                         </div>
                         <div class="col">
                             <label for="institution">Institution</label>
-                            <input type="text" id="institution" name="institution" placeholder="University / School Name">
+                            <input type="text" id="institution" name="institution"
+                                placeholder="University / School Name">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="awards">Awards & Recognitions</label>
-                        <textarea id="awards" name="awards" rows="2" placeholder="List any notable awards..."></textarea>
+                        <textarea id="awards" name="awards" rows="2"
+                            placeholder="List any notable awards..."></textarea>
                     </div>
 
                     <div class="form-group radio-group">
                         <label>Do you have published work?</label>
                         <div class="options">
-                            <label><input type="radio" name="hasPublication" value="Yes" onchange="togglePublications(true)"> Yes</label>
-                            <label><input type="radio" name="hasPublication" value="No" onchange="togglePublications(false)" checked> No</label>
+                            <label><input type="radio" name="hasPublication" value="Yes"
+                                    onchange="togglePublications(true)"> Yes</label>
+                            <label><input type="radio" name="hasPublication" value="No"
+                                    onchange="togglePublications(false)" checked> No</label>
                         </div>
                     </div>
 
                     <div class="form-group hidden" id="publicationsGroup">
                         <label for="publications">Publications Listed</label>
-                        <textarea id="publications" name="publications" rows="2" placeholder="e.g. Vogue India, GQ, Rolling Stone"></textarea>
+                        <textarea id="publications" name="publications" rows="2"
+                            placeholder="e.g. Vogue India, GQ, Rolling Stone"></textarea>
                     </div>
                 </div>
 
@@ -280,11 +302,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="studioWebsite">Studio Website</label>
-                        <input type="url" id="studioWebsite" name="studioWebsite" placeholder="https://studio.com">
-                    </div>
-                    
                     <div class="form-group row">
                         <div class="col">
                             <label for="projectScale">Typical Project Scale</label>
@@ -297,26 +314,42 @@
                         </div>
                         <div class="col">
                             <label for="budgetRange">Typical Budget Range</label>
-                            <input type="text" id="budgetRange" name="budgetRange" placeholder="e.g. ₹50k - ₹2L per project">
+                            <input type="text" id="budgetRange" name="budgetRange"
+                                placeholder="e.g. ₹50k - ₹2L per project">
+                            <span class="help-text">Your typical fee per project or day rate.</span>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="clients">Notable Clients</label>
-                        <textarea id="clients" name="clients" rows="2" placeholder="Brands you've worked with"></textarea>
+                        <textarea id="clients" name="clients" rows="2"
+                            placeholder="Brands you've worked with"></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="industries">Industries Served</label>
-                        <textarea id="industries" name="industries" rows="2" placeholder="e.g. Fashion, Tech, F&B"></textarea>
+                        <textarea id="industries" name="industries" rows="2"
+                            placeholder="e.g. Fashion, Tech, F&B"></textarea>
                     </div>
                 </div>
 
                 <!-- STEP 6: SOCIAL -->
                 <div class="form-step" id="step-6">
                     <div class="step-header">
-                        <h2>Social & Portfolio</h2>
-                        <p>Where can we see your work?</p>
+                        <h2>Online Presence</h2>
+                        <p>Your websites, portfolios, and social profiles — all in one place.</p>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col">
+                            <label for="website"><i class="fa-solid fa-globe"></i> Personal Website</label>
+                            <input type="url" id="website" name="website" placeholder="https://yoursite.com">
+                        </div>
+                        <div class="col">
+                            <label for="studioWebsite"><i class="fa-solid fa-building"></i> Studio / Company
+                                Website</label>
+                            <input type="url" id="studioWebsite" name="studioWebsite" placeholder="https://studio.com">
+                        </div>
                     </div>
 
                     <div class="social-grid">
@@ -361,6 +394,7 @@
                                 <option value="Vimeo">Vimeo</option>
                                 <option value="Website">Personal Website</option>
                             </select>
+                            <span class="help-text">Where clients are most likely to find your best work.</span>
                         </div>
                         <div class="col">
                             <label for="instaFollowing">Instagram Following</label>
@@ -372,6 +406,7 @@
                                 <option value="50K - 100K">50K - 100K</option>
                                 <option value="100K+">100K+</option>
                             </select>
+                            <span class="help-text">Helps us understand your reach — not a ranking factor.</span>
                         </div>
                     </div>
                 </div>
@@ -385,7 +420,10 @@
 
                     <div class="form-group">
                         <label for="bio">Professional Bio</label>
-                        <textarea id="bio" name="bio" rows="4" placeholder="A short bio written in third person..."></textarea>
+                        <textarea id="bio" name="bio" rows="4"
+                            placeholder="A short bio written in third person..."></textarea>
+                        <span class="help-text">Write in third person — this appears on your public directory
+                            listing.</span>
                     </div>
 
                     <div class="form-group row">
@@ -406,13 +444,28 @@
 
                     <div class="form-group">
                         <label for="openTo">Open To</label>
-                        <input type="text" id="openTo" name="openTo" placeholder="e.g. Collaborations, Full-time, Commissions">
+                        <input type="text" id="openTo" name="openTo"
+                            placeholder="e.g. Collaborations, Full-time, Commissions">
+                        <span class="help-text">What kind of opportunities interest you right now?</span>
                     </div>
 
                     <div class="form-group">
-                        <label for="photoUrl">Profile Photo URL</label>
-                        <input type="url" id="photoUrl" name="photoUrl" placeholder="Link to a high-res portrait">
-                        <span class="help-text">Provide a Google Drive/Dropbox public link</span>
+                        <label>Profile Photo</label>
+                        <div class="photo-upload-zone" id="photoUploadZone">
+                            <div class="photo-upload-placeholder" id="photoPlaceholder">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p>Drag & drop your photo here</p>
+                                <span class="help-text">or click to browse · JPG, PNG, WebP · Max 5 MB</span>
+                            </div>
+                            <div class="photo-preview hidden" id="photoPreview">
+                                <img id="photoPreviewImg" alt="Profile preview">
+                                <button type="button" class="photo-remove-btn" id="photoRemoveBtn" title="Remove photo">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <input type="file" id="profilePhoto" name="profilePhoto"
+                                accept="image/jpeg,image/png,image/webp" class="photo-file-input">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -440,7 +493,8 @@
                 <!-- Navigation Buttons -->
                 <div class="form-nav">
                     <button type="button" class="btn btn-secondary hidden" id="prev-btn">Back</button>
-                    <button type="button" class="btn btn-primary" id="next-btn">Continue <i class="fa-solid fa-arrow-right"></i></button>
+                    <button type="button" class="btn btn-primary" id="next-btn">Continue <i
+                            class="fa-solid fa-arrow-right"></i></button>
                     <button type="submit" class="btn btn-primary hidden" id="submit-btn">Submit Profile</button>
                 </div>
 
@@ -449,15 +503,21 @@
 
             <!-- Success Screen (shown after successful submission) -->
             <div id="success-screen" class="hidden" style="text-align: center; padding: 4rem 2rem;">
-                <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem; display: block;"></i>
+                <i class="fa-solid fa-circle-check"
+                    style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem; display: block;"></i>
                 <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">Profile Submitted Successfully!</h2>
-                <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Thank you for registering with The Black Book India.</p>
-                <p style="color: var(--text-muted); margin-bottom: 2rem;">Your reference ID is <strong id="submission-ref-id" style="color: var(--text-main);"></strong>. We'll be in touch after reviewing your profile.</p>
-                <button class="btn btn-secondary" onclick="location.reload()" style="margin: 0 auto;">Submit Another Profile</button>
+                <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Thank you for registering with The Black
+                    Book India.</p>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Your reference ID is <strong
+                        id="submission-ref-id" style="color: var(--text-main);"></strong>. We'll be in touch after
+                    reviewing your profile.</p>
+                <button class="btn btn-secondary" onclick="location.reload()" style="margin: 0 auto;">Submit Another
+                    Profile</button>
             </div>
         </main>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
+
 </html>

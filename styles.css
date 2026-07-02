@@ -155,16 +155,34 @@ body {
 /* Form Steps */
 .form-step {
     display: none;
-    animation: fadeIn 0.4s ease forwards;
 }
 
 .form-step.active {
     display: block;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.form-step.active.slide-in-right {
+    animation: slideInRight 0.4s ease forwards;
+}
+
+.form-step.active.slide-in-left {
+    animation: slideInLeft 0.4s ease forwards;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 .step-header {
@@ -435,8 +453,22 @@ input[type="radio"] {
 /* Validation styling */
 input:invalid.touched,
 select:invalid.touched,
-textarea:invalid.touched {
+textarea:invalid.touched,
+input.touched,
+select.touched {
     border-color: var(--error);
+}
+
+.checkbox-container:has(input.touched) .checkmark {
+    border-color: var(--error);
+}
+
+.field-error {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--error);
+    animation: fadeIn 0.3s ease;
 }
 
 /* Responsive — Tablet */
@@ -571,4 +603,94 @@ textarea:invalid.touched {
     .progress-wrapper {
         margin-bottom: 2rem;
     }
+}
+
+/* ── Photo Upload Zone ─────────────────────────────────────────── */
+.photo-upload-zone {
+    position: relative;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: var(--input-bg);
+}
+
+.photo-upload-zone:hover,
+.photo-upload-zone.drag-over {
+    border-color: var(--accent-gold);
+    background: rgba(184, 150, 46, 0.05);
+}
+
+.photo-upload-zone.drag-over {
+    box-shadow: 0 0 20px rgba(184, 150, 46, 0.15);
+}
+
+.photo-upload-placeholder i {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    display: block;
+    transition: var(--transition);
+}
+
+.photo-upload-zone:hover .photo-upload-placeholder i {
+    color: var(--accent-gold);
+    transform: translateY(-3px);
+}
+
+.photo-upload-placeholder p {
+    color: var(--text-main);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.photo-file-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.photo-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.photo-preview img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent-gold);
+    box-shadow: 0 4px 20px rgba(184, 150, 46, 0.2);
+}
+
+.photo-remove-btn {
+    position: absolute;
+    top: -4px;
+    right: calc(50% - 80px);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--error);
+    color: #fff;
+    border: 2px solid var(--bg-card);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    transition: var(--transition);
+    z-index: 2;
+}
+
+.photo-remove-btn:hover {
+    transform: scale(1.15);
+    background: #ff2020;
 }

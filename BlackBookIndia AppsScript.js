@@ -19,6 +19,12 @@ var NOTIFY_EMAIL = 'creativeblackbook@gmail.com';
 // Set to true to send email notifications on every submission.
 var SEND_EMAIL_NOTIFICATIONS = true;
 
+// Google Drive folder ID for uploaded profile photos.
+// Create a folder in Drive, open it, and grab the ID from the URL:
+// https://drive.google.com/drive/folders/ >>>THIS PART<<<
+// Leave blank to save photos in the root of your Drive.
+var PHOTO_FOLDER_ID = '';
+
 // ── COLUMN HEADERS ────────────────────────────────────────────────
 // These are written to Row 1 automatically when you run setup().
 // The order here matches exactly the order data is written per row.
@@ -96,6 +102,27 @@ function doPost(e) {
     // Parse the incoming JSON payload
     var data = JSON.parse(e.postData.contents);
 
+    // ── ANTI-SPAM: Honeypot check ──────────────────────────────
+    // If the hidden honeypot field has a value, it's a bot.
+    // Return fake success so the bot doesn't retry.
+    if (data._honeypot && data._honeypot.trim() !== '') {
+      Logger.log('SPAM BLOCKED (honeypot): ' + clean(data.email));
+      return ContentService
+        .createTextOutput(JSON.stringify({ result: 'success', id: 'BB-SPAM-00000' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ── ANTI-SPAM: Time-based check ────────────────────────────
+    // A real user takes minutes to fill 7 steps; bots do it instantly.
+    var MIN_SECONDS = 8;
+    var elapsed = parseInt(data._elapsedSeconds, 10) || 0;
+    if (elapsed < MIN_SECONDS) {
+      Logger.log('SPAM BLOCKED (too fast: ' + elapsed + 's): ' + clean(data.email));
+      return ContentService
+        .createTextOutput(JSON.stringify({ result: 'success', id: 'BB-SPAM-00000' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var ss = SpreadsheetApp.openById(SHEET_ID);
     var sheet = ss.getSheetByName(SHEET_TAB_NAME);
 
@@ -105,14 +132,23 @@ function doPost(e) {
       formatHeaderRow(sheet);
     }
 
+    // ── DUPLICATE DETECTION ────────────────────────────────────
+    // Check if this email or phone already exists in the sheet.
+    var duplicateInfo = checkForDuplicate(sheet, clean(data.email), clean(data.phone));
+
     // Generate a unique Submission ID
     var submissionId = 'BB-' + new Date().getFullYear() + '-' + String(sheet.getLastRow()).padStart(5, '0');
+
+    // Set status based on duplicate check
+    var status = duplicateInfo.isDuplicate
+      ? '⚠️ Possible Duplicate (matches row ' + duplicateInfo.matchRow + ': ' + duplicateInfo.matchField + ')'
+      : 'Pending Review';
 
     // Build the row in the same order as HEADERS
     var row = [
       new Date(),                                          // Timestamp
       submissionId,                                        // Submission ID
-      'Pending Review',                                    // Status
+      status,                                              // Status
 
       // Section 1
       clean(data.fname),
@@ -171,7 +207,7 @@ function doPost(e) {
       clean(data.workingStyle),
       clean(data.languages),
       clean(data.openTo),
-      clean(data.photoUrl),
+      savePhotoToDrive(data, submissionId),  // Upload photo to Drive & return URL
       clean(data.referralSource),
       clean(data.consentGiven),
       clean(data.openToFeatures)
@@ -183,9 +219,15 @@ function doPost(e) {
     var newRowIndex = sheet.getLastRow();
     formatNewRow(sheet, newRowIndex);
 
-    // Send email notification
+    // Highlight duplicate rows in yellow for easy spotting
+    if (duplicateInfo.isDuplicate) {
+      var dupRange = sheet.getRange(newRowIndex, 1, 1, HEADERS.length);
+      dupRange.setBackground('#3d3000');
+    }
+
+    // Send email notification (include duplicate warning if applicable)
     if (SEND_EMAIL_NOTIFICATIONS) {
-      sendNotificationEmail(data, submissionId);
+      sendNotificationEmail(data, submissionId, duplicateInfo);
     }
 
     // Return success to the form
@@ -217,6 +259,40 @@ function clean(val) {
   if (val === undefined || val === null) return '';
   if (typeof val === 'boolean') return val ? 'Yes' : 'No';
   return String(val).trim();
+}
+
+// ── HELPER: Save uploaded photo to Google Drive ───────────────────
+function savePhotoToDrive(data, submissionId) {
+  if (!data.photoBase64) return '';
+
+  try {
+    var blob = Utilities.newBlob(
+      Utilities.base64Decode(data.photoBase64),
+      data.photoMimeType || 'image/jpeg',
+      data.photoFileName || (submissionId + '.jpg')
+    );
+
+    // Name the file: "FirstName LastName - SubmissionID.ext"
+    var ext = (data.photoFileName || '').split('.').pop() || 'jpg';
+    var safeName = clean(data.fname) + ' ' + clean(data.lname);
+    blob.setName(safeName + ' - ' + submissionId + '.' + ext);
+
+    var file;
+    if (PHOTO_FOLDER_ID) {
+      var folder = DriveApp.getFolderById(PHOTO_FOLDER_ID);
+      file = folder.createFile(blob);
+    } else {
+      file = DriveApp.createFile(blob);
+    }
+
+    // Make the file viewable by anyone with the link
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    return 'https://drive.google.com/file/d/' + file.getId() + '/view';
+  } catch (err) {
+    Logger.log('Photo upload error: ' + err.toString());
+    return 'Upload failed: ' + err.toString();
+  }
 }
 
 // ── HELPER: Format header row ─────────────────────────────────────
@@ -268,16 +344,64 @@ function formatNewRow(sheet, rowIndex) {
   sheet.setRowHeight(rowIndex, 60);
 }
 
+// ── HELPER: Check for Duplicates ──────────────────────────────────
+function checkForDuplicate(sheet, email, phone) {
+  var duplicateInfo = { isDuplicate: false, matchRow: -1, matchField: '' };
+
+  // If no email or phone, skip check
+  if (!email && !phone) return duplicateInfo;
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return duplicateInfo; // Only headers exist
+
+  // Get all data to search efficiently (skip headers)
+  // Columns: Email is col 10 (index 9), Phone is col 11 (index 10)
+  var data = sheet.getRange(2, 1, lastRow - 1, HEADERS.length).getValues();
+
+  for (var i = 0; i < data.length; i++) {
+    var rowEmail = String(data[i][9] || '').trim().toLowerCase();
+    var rowPhone = String(data[i][10] || '').trim().replace(/[^0-9+]/g, '');
+
+    var checkEmail = email.toLowerCase();
+    var checkPhone = phone.replace(/[^0-9+]/g, '');
+
+    if (checkEmail && rowEmail === checkEmail) {
+      duplicateInfo.isDuplicate = true;
+      duplicateInfo.matchRow = i + 2; // +2 because data array is 0-indexed and starts from row 2
+      duplicateInfo.matchField = 'Email';
+      break;
+    }
+
+    if (checkPhone && rowPhone === checkPhone) {
+      duplicateInfo.isDuplicate = true;
+      duplicateInfo.matchRow = i + 2;
+      duplicateInfo.matchField = 'Phone';
+      break;
+    }
+  }
+
+  return duplicateInfo;
+}
+
 // ── HELPER: Email notification ─────────────────────────────────────
-function sendNotificationEmail(data, submissionId) {
+function sendNotificationEmail(data, submissionId, duplicateInfo) {
   var name = clean(data.fname) + ' ' + clean(data.lname);
   var profession = clean(data.primaryProfession);
   var city = clean(data.city);
   var email = clean(data.email);
 
-  var subject = '✦ New Black Book Submission: ' + name + ' (' + profession + ', ' + city + ')';
+  var duplicateWarning = '';
+  if (duplicateInfo && duplicateInfo.isDuplicate) {
+    duplicateWarning = '⚠️ WARNING: POSSIBLE DUPLICATE ⚠️\n'
+      + 'This submission matches Row ' + duplicateInfo.matchRow
+      + ' based on ' + duplicateInfo.matchField + '.\n\n';
+  }
+
+  var subject = (duplicateInfo && duplicateInfo.isDuplicate ? '⚠️ [DUPLICATE] ' : '✦ New ')
+    + 'Black Book Submission: ' + name + ' (' + profession + ', ' + city + ')';
 
   var body = 'A new creative professional has registered with The Black Book India.\n\n'
+    + duplicateWarning
     + '─────────────────────────────────\n'
     + 'SUBMISSION ID: ' + submissionId + '\n'
     + 'NAME: ' + name + '\n'
@@ -356,15 +480,15 @@ function setupSheet() {
 
   // Profession breakdown formulas
   var professions = [
-    'photographer','filmmaker','cinematographer','camera-operator',
-    'makeup-artist','hair-stylist','costume-stylist','art-director',
-    'creative-director','graphic-designer','motion-designer','actor',
-    'voice-artist','director','writer-script','copywriter','lyricist',
-    'singer','composer','sound-designer','editor-video','editor-photo',
-    'set-designer','producer','pr-content','stage-performer',
-    'dancer-choreographer','illustrator'
+    'photographer', 'filmmaker', 'cinematographer', 'camera-operator',
+    'makeup-artist', 'hair-stylist', 'costume-stylist', 'art-director',
+    'creative-director', 'graphic-designer', 'motion-designer', 'actor',
+    'voice-artist', 'director', 'writer-script', 'copywriter', 'lyricist',
+    'singer', 'composer', 'sound-designer', 'editor-video', 'editor-photo',
+    'set-designer', 'producer', 'pr-content', 'stage-performer',
+    'dancer-choreographer', 'illustrator'
   ];
-  professions.forEach(function(p, i) {
+  professions.forEach(function (p, i) {
     stats.getRange('A' + (9 + i)).setValue(p);
     stats.getRange('B' + (9 + i)).setFormula('=COUNTIF(Submissions!M:M,"' + p + '")');
   });
