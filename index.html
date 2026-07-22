@@ -4,520 +4,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Black Book India — Creative Professional Directory</title>
+    <title>The Black Book India — India's Premier Creative Directory</title>
     <meta name="description"
-        content="Join The Black Book India — the premier directory for India's creative professionals. Register as a photographer, filmmaker, designer, makeup artist, and more.">
-    <!-- Open Graph / Social Sharing -->
+        content="The Black Book India is a curated, private directory of India's most talented creative professionals — photographers, filmmakers, designers, stylists, directors and more.">
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="The Black Book India — Creative Professional Directory">
+    <meta property="og:title" content="The Black Book India — India's Premier Creative Directory">
     <meta property="og:description"
-        content="India's premier directory for creative professionals. Photographers, filmmakers, designers, and more.">
+        content="A curated directory of India's most talented creative professionals. Join the directory.">
     <meta property="og:locale" content="en_IN">
-    <!-- Favicon: gold symbol -->
+    <!-- Favicon -->
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <!-- Supabase SDK via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body>
-    <div class="background-overlay"></div>
-    <div class="app-container">
+<body class="landing-body">
+    <!-- Background glow -->
+    <div class="lp-bg-glow lp-bg-glow--top-left"></div>
+    <div class="lp-bg-glow lp-bg-glow--bottom-right"></div>
 
-        <header class="app-header">
-            <h1 class="logo">THE BLACK BOOK<span>.</span></h1>
-            <p class="subtitle">India's Premier Creative Directory</p>
-        </header>
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 1: HERO
+    ══════════════════════════════════════════════════════════ -->
+    <section class="lp-hero" id="hero">
+        <div class="lp-hero__inner">
+            <p class="lp-eyebrow lp-fade-up" style="--delay: 0s">India's Premier Creative Directory</p>
 
-        <main class="form-container">
-            <!-- Progress Bar -->
-            <div class="progress-wrapper">
-                <div class="progress-bar" id="progress-bar"></div>
-                <div class="progress-steps">
-                    <span class="step-indicator active">1</span>
-                    <span class="step-indicator">2</span>
-                    <span class="step-indicator">3</span>
-                    <span class="step-indicator">4</span>
-                    <span class="step-indicator">5</span>
-                    <span class="step-indicator">6</span>
-                    <span class="step-indicator">7</span>
-                </div>
+            <h1 class="lp-hero__logo lp-fade-up" style="--delay: 0.1s">
+                THE BLACK<br>BOOK<span class="lp-gold">.</span>
+            </h1>
+
+            <div class="lp-divider lp-fade-up" style="--delay: 0.2s"></div>
+
+            <p class="lp-hero__tagline lp-fade-up" style="--delay: 0.3s">
+                A private, curated directory of India's<br class="lp-br-desktop"> most talented creative professionals.
+            </p>
+
+            <a href="form.html" class="lp-btn lp-btn--outline lp-fade-up" style="--delay: 0.45s" id="hero-cta">
+                Join the Directory <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="lp-scroll-indicator lp-fade-up" style="--delay: 0.7s" aria-hidden="true">
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 2: WHAT IS THE BLACK BOOK
+    ══════════════════════════════════════════════════════════ -->
+    <section class="lp-section lp-section--dark" id="what">
+        <div class="lp-container lp-reveal">
+            <span class="lp-label">What Is</span>
+            <h2 class="lp-section__heading">The Black Book Project</h2>
+            <p class="lp-section__body">
+                The Black Book India is a hand-curated, searchable directory of the country's most skilled creative
+                professionals — photographers, filmmakers, cinematographers, makeup artists, directors, designers,
+                stylists, and beyond.
+            </p>
+            <p class="lp-section__body">
+                This is not a job board. It is a permanent, discoverable presence — a place where clients, brands,
+                and fellow creatives come to find exactly the right person for the work that matters.
+            </p>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 3: WHY JOIN
+    ══════════════════════════════════════════════════════════ -->
+    <section class="lp-section" id="why">
+        <div class="lp-container">
+            <div class="lp-reveal">
+                <span class="lp-label">Why Join</span>
+                <h2 class="lp-section__heading">Built for India's Creative Elite</h2>
             </div>
 
-            <form id="submission-form" novalidate>
-                <!-- Honeypot anti-spam: invisible to humans, bots fill it -->
-                <div style="position: absolute; left: -9999px; top: -9999px;" aria-hidden="true">
-                    <input type="text" name="company" id="honeypot-field" tabindex="-1" autocomplete="off">
+            <div class="lp-cards lp-reveal" style="--delay: 0.1s">
+                <div class="lp-card" id="card-curated">
+                    <div class="lp-card__icon">✦</div>
+                    <h3 class="lp-card__title">Curated &amp; Exclusive</h3>
+                    <p class="lp-card__body">Every profile is reviewed before it goes live. Only working professionals.
+                        No noise.</p>
                 </div>
 
-                <!-- STEP 1: IDENTITY -->
-                <div class="form-step active" id="step-1">
-                    <div class="step-header">
-                        <h2>Identity & Location</h2>
-                        <p>Let's start with the basics.</p>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="fname">First Name *</label>
-                            <input type="text" id="fname" name="fname" required placeholder="John">
-                        </div>
-                        <div class="col">
-                            <label for="lname">Last Name *</label>
-                            <input type="text" id="lname" name="lname" required placeholder="Doe">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="displayName">Display Name / Moniker</label>
-                        <input type="text" id="displayName" name="displayName" placeholder="How you want to be known">
-                        <span class="help-text">A stage name, brand name, or alias you're known by
-                            professionally.</span>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="city">City *</label>
-                            <input type="text" id="city" name="city" required placeholder="Mumbai">
-                        </div>
-                        <div class="col">
-                            <label for="state">State</label>
-                            <input type="text" id="state" name="state" placeholder="Maharashtra">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="workLocation">Available to Work In</label>
-                        <input type="text" id="workLocation" name="workLocation"
-                            placeholder="e.g. Worldwide, India only, Specific cities">
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="email">Email Address *</label>
-                            <input type="email" id="email" name="email" required placeholder="hello@example.com">
-                        </div>
-                        <div class="col">
-                            <label for="phone">Phone Number *</label>
-                            <input type="tel" id="phone" name="phone" required placeholder="+91 98765 43210"
-                                value="+91 ">
-                        </div>
-                    </div>
+                <div class="lp-card" id="card-visibility">
+                    <div class="lp-card__icon">◎</div>
+                    <h3 class="lp-card__title">Visibility That Matters</h3>
+                    <p class="lp-card__body">Be found by clients, brands, and collaborators searching for your exact
+                        skill set and city.</p>
                 </div>
 
-                <!-- STEP 2: PROFESSION -->
-                <div class="form-step" id="step-2">
-                    <div class="step-header">
-                        <h2>Professional Focus</h2>
-                        <p>What defines your creative work?</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="primaryProfession">Primary Profession *</label>
-                        <select id="primaryProfession" name="primaryProfession" required>
-                            <option value="" disabled selected>Select your primary role...</option>
-                            <option value="photographer">Photographer</option>
-                            <option value="filmmaker">Filmmaker</option>
-                            <option value="cinematographer">Cinematographer</option>
-                            <option value="camera-operator">Camera Operator</option>
-                            <option value="makeup-artist">Makeup Artist</option>
-                            <option value="hair-stylist">Hair Stylist</option>
-                            <option value="costume-stylist">Costume Stylist</option>
-                            <option value="art-director">Art Director</option>
-                            <option value="creative-director">Creative Director</option>
-                            <option value="graphic-designer">Graphic Designer</option>
-                            <option value="motion-designer">Motion Designer</option>
-                            <option value="actor">Actor</option>
-                            <option value="voice-artist">Voice Artist</option>
-                            <option value="director">Director</option>
-                            <option value="writer-script">Writer (Script)</option>
-                            <option value="copywriter">Copywriter</option>
-                            <option value="lyricist">Lyricist</option>
-                            <option value="singer">Singer</option>
-                            <option value="composer">Composer</option>
-                            <option value="sound-designer">Sound Designer</option>
-                            <option value="editor-video">Video Editor</option>
-                            <option value="editor-photo">Photo Editor</option>
-                            <option value="set-designer">Set Designer</option>
-                            <option value="producer">Producer</option>
-                            <option value="pr-content">PR / Content Creator</option>
-                            <option value="stage-performer">Stage Performer</option>
-                            <option value="dancer-choreographer">Dancer / Choreographer</option>
-                            <option value="illustrator">Illustrator</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group hidden" id="otherProfessionGroup">
-                        <label for="otherProfession">Please Specify (Other Profession)</label>
-                        <input type="text" id="otherProfession" name="otherProfession" placeholder="e.g. 3D Generalist">
-                    </div>
-
-                    <div class="form-group radio-group">
-                        <label>Do you have secondary roles/professions?</label>
-                        <div class="options">
-                            <label><input type="radio" name="hasSecondary" value="Yes"
-                                    onchange="toggleSecondaryRoles(true)"> Yes</label>
-                            <label><input type="radio" name="hasSecondary" value="No"
-                                    onchange="toggleSecondaryRoles(false)" checked> No</label>
-                        </div>
-                    </div>
-
-                    <div class="form-group hidden" id="secondaryRolesGroup">
-                        <label for="secondaryRoles">Secondary Roles</label>
-                        <input type="text" id="secondaryRoles" name="secondaryRoles"
-                            placeholder="e.g. Photographer, Drone Operator">
-                    </div>
+                <div class="lp-card" id="card-profile">
+                    <div class="lp-card__icon">≡</div>
+                    <h3 class="lp-card__title">One Complete Profile</h3>
+                    <p class="lp-card__body">Your work, bio, social links, and contact — all in one permanent,
+                        professional listing.</p>
                 </div>
-
-                <!-- STEP 3: SPECIALISATION -->
-                <div class="form-step" id="step-3">
-                    <div class="step-header">
-                        <h2>Specialisation</h2>
-                        <p>Help clients find you by describing what you do best.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="genres">Specialisation / Genres</label>
-                        <input type="text" id="genres" name="genres"
-                            placeholder="e.g. Portrait, Commercial, Documentary">
-                        <span class="help-text">Quick searchable tags — comma separated.</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="genreGeneric">Specialisation (Free Text)</label>
-                        <textarea id="genreGeneric" name="genreGeneric" rows="3"
-                            placeholder="Describe your unique style or niche in detail..."></textarea>
-                        <span class="help-text">Describe your niche in your own words — what makes your work
-                            distinct?</span>
-                    </div>
-                </div>
-
-                <!-- STEP 4: EXPERIENCE -->
-                <div class="form-step" id="step-4">
-                    <div class="step-header">
-                        <h2>Experience & Accolades</h2>
-                        <p>Tell us about your journey and achievements.</p>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="yearsExperience">Years of Experience</label>
-                            <select id="yearsExperience" name="yearsExperience">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="0-2">0 - 2 Years</option>
-                                <option value="3-5">3 - 5 Years</option>
-                                <option value="6-10">6 - 10 Years</option>
-                                <option value="11-15">11 - 15 Years</option>
-                                <option value="15+">15+ Years</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="careerStage">Career Stage</label>
-                            <select id="careerStage" name="careerStage">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="Emerging">Emerging</option>
-                                <option value="Mid-Level">Mid-Level</option>
-                                <option value="Senior">Senior</option>
-                                <option value="Expert / Veteran">Expert / Veteran</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="education">Highest Education</label>
-                            <input type="text" id="education" name="education" placeholder="e.g. B.A. in Film Studies">
-                        </div>
-                        <div class="col">
-                            <label for="institution">Institution</label>
-                            <input type="text" id="institution" name="institution"
-                                placeholder="University / School Name">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="awards">Awards & Recognitions</label>
-                        <textarea id="awards" name="awards" rows="2"
-                            placeholder="List any notable awards..."></textarea>
-                    </div>
-
-                    <div class="form-group radio-group">
-                        <label>Do you have published work?</label>
-                        <div class="options">
-                            <label><input type="radio" name="hasPublication" value="Yes"
-                                    onchange="togglePublications(true)"> Yes</label>
-                            <label><input type="radio" name="hasPublication" value="No"
-                                    onchange="togglePublications(false)" checked> No</label>
-                        </div>
-                    </div>
-
-                    <div class="form-group hidden" id="publicationsGroup">
-                        <label for="publications">Publications Listed</label>
-                        <textarea id="publications" name="publications" rows="2"
-                            placeholder="e.g. Vogue India, GQ, Rolling Stone"></textarea>
-                    </div>
-                </div>
-
-                <!-- STEP 5: BUSINESS -->
-                <div class="form-step" id="step-5">
-                    <div class="step-header">
-                        <h2>Business Details</h2>
-                        <p>How you operate professionally.</p>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="bizType">Business Type</label>
-                            <select id="bizType" name="bizType">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="Freelancer">Freelancer / Independent</option>
-                                <option value="Agency">Agency</option>
-                                <option value="Production House">Production House</option>
-                                <option value="Studio">Studio</option>
-                                <option value="Collective">Collective</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="studioName">Studio / Company Name</label>
-                            <input type="text" id="studioName" name="studioName" placeholder="If applicable">
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="yearEst">Year Established</label>
-                            <input type="number" id="yearEst" name="yearEst" placeholder="YYYY" min="1900" max="2099">
-                        </div>
-                        <div class="col">
-                            <label for="teamSize">Team Size</label>
-                            <input type="number" id="teamSize" name="teamSize" placeholder="e.g. 1 (if solo)">
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="projectScale">Typical Project Scale</label>
-                            <select id="projectScale" name="projectScale">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="Small">Small / Independent</option>
-                                <option value="Medium">Medium / Commercial</option>
-                                <option value="Large">Large / Enterprise</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="budgetRange">Typical Budget Range</label>
-                            <input type="text" id="budgetRange" name="budgetRange"
-                                placeholder="e.g. ₹50k - ₹2L per project">
-                            <span class="help-text">Your typical fee per project or day rate.</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="clients">Notable Clients</label>
-                        <textarea id="clients" name="clients" rows="2"
-                            placeholder="Brands you've worked with"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="industries">Industries Served</label>
-                        <textarea id="industries" name="industries" rows="2"
-                            placeholder="e.g. Fashion, Tech, F&B"></textarea>
-                    </div>
-                </div>
-
-                <!-- STEP 6: SOCIAL -->
-                <div class="form-step" id="step-6">
-                    <div class="step-header">
-                        <h2>Online Presence</h2>
-                        <p>Your websites, portfolios, and social profiles — all in one place.</p>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="website"><i class="fa-solid fa-globe"></i> Personal Website</label>
-                            <input type="url" id="website" name="website" placeholder="https://yoursite.com">
-                        </div>
-                        <div class="col">
-                            <label for="studioWebsite"><i class="fa-solid fa-building"></i> Studio / Company
-                                Website</label>
-                            <input type="url" id="studioWebsite" name="studioWebsite" placeholder="https://studio.com">
-                        </div>
-                    </div>
-
-                    <div class="social-grid">
-                        <div class="form-group">
-                            <label for="instagram"><i class="fa-brands fa-instagram"></i> Instagram</label>
-                            <input type="url" id="instagram" name="instagram" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="linkedin"><i class="fa-brands fa-linkedin"></i> LinkedIn</label>
-                            <input type="url" id="linkedin" name="linkedin" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="behance"><i class="fa-brands fa-behance"></i> Behance</label>
-                            <input type="url" id="behance" name="behance" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="vimeo"><i class="fa-brands fa-vimeo"></i> Vimeo</label>
-                            <input type="url" id="vimeo" name="vimeo" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="youtube"><i class="fa-brands fa-youtube"></i> YouTube</label>
-                            <input type="url" id="youtube" name="youtube" placeholder="Channel URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="facebook"><i class="fa-brands fa-facebook"></i> Facebook</label>
-                            <input type="url" id="facebook" name="facebook" placeholder="Page URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="twitter"><i class="fa-brands fa-x-twitter"></i> Twitter / X</label>
-                            <input type="url" id="twitter" name="twitter" placeholder="Profile URL">
-                        </div>
-                    </div>
-
-                    <div class="form-group row mt-2">
-                        <div class="col">
-                            <label for="primaryPlatform">Primary Platform</label>
-                            <select id="primaryPlatform" name="primaryPlatform">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="Instagram">Instagram</option>
-                                <option value="LinkedIn">LinkedIn</option>
-                                <option value="Behance">Behance</option>
-                                <option value="Vimeo">Vimeo</option>
-                                <option value="Website">Personal Website</option>
-                            </select>
-                            <span class="help-text">Where clients are most likely to find your best work.</span>
-                        </div>
-                        <div class="col">
-                            <label for="instaFollowing">Instagram Following</label>
-                            <select id="instaFollowing" name="instaFollowing">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="< 1K">&lt; 1K</option>
-                                <option value="1K - 10K">1K - 10K</option>
-                                <option value="10K - 50K">10K - 50K</option>
-                                <option value="50K - 100K">50K - 100K</option>
-                                <option value="100K+">100K+</option>
-                            </select>
-                            <span class="help-text">Helps us understand your reach — not a ranking factor.</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- STEP 7: BIO & PREFERENCES -->
-                <div class="form-step" id="step-7">
-                    <div class="step-header">
-                        <h2>Bio & Preferences</h2>
-                        <p>Final details to complete your profile.</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="bio">Professional Bio</label>
-                        <textarea id="bio" name="bio" rows="4"
-                            placeholder="A short bio written in third person..."></textarea>
-                        <span class="help-text">Write in third person — this appears on your public directory
-                            listing.</span>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="workingStyle">Working Style</label>
-                            <select id="workingStyle" name="workingStyle">
-                                <option value="" disabled selected>Select...</option>
-                                <option value="Remote">Remote</option>
-                                <option value="Hybrid">Hybrid</option>
-                                <option value="On-Site">On-Site</option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <label for="languages">Languages of Work</label>
-                            <input type="text" id="languages" name="languages" placeholder="e.g. English, Hindi">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="openTo">Open To</label>
-                        <input type="text" id="openTo" name="openTo"
-                            placeholder="e.g. Collaborations, Full-time, Commissions">
-                        <span class="help-text">What kind of opportunities interest you right now?</span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Profile Photo</label>
-                        <div class="photo-upload-zone" id="photoUploadZone">
-                            <div class="photo-upload-placeholder" id="photoPlaceholder">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
-                                <p>Drag & drop your photo here</p>
-                                <span class="help-text">or click to browse · JPG, PNG, WebP · Max 5 MB</span>
-                            </div>
-                            <div class="photo-preview hidden" id="photoPreview">
-                                <img id="photoPreviewImg" alt="Profile preview">
-                                <button type="button" class="photo-remove-btn" id="photoRemoveBtn" title="Remove photo">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
-                            <input type="file" id="profilePhoto" name="profilePhoto"
-                                accept="image/jpeg,image/png,image/webp" class="photo-file-input">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="referralSource">How did you hear about us?</label>
-                        <input type="text" id="referralSource" name="referralSource">
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="openToFeatures" name="openToFeatures" value="Yes" checked>
-                            <span class="checkmark"></span>
-                            I am open to being featured on The Black Book social channels.
-                        </label>
-                    </div>
-
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="consentGiven" name="consentGiven" value="Yes" required>
-                            <span class="checkmark"></span>
-                            I consent to the processing of my data for the directory. *
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Navigation Buttons -->
-                <div class="form-nav">
-                    <button type="button" class="btn btn-secondary hidden" id="prev-btn">Back</button>
-                    <button type="button" class="btn btn-primary" id="next-btn">Continue <i
-                            class="fa-solid fa-arrow-right"></i></button>
-                    <button type="submit" class="btn btn-primary hidden" id="submit-btn">Submit Profile</button>
-                </div>
-
-                <div id="status-message" class="hidden"></div>
-            </form>
-
-            <!-- Success Screen (shown after successful submission) -->
-            <div id="success-screen" class="hidden" style="text-align: center; padding: 4rem 2rem;">
-                <i class="fa-solid fa-circle-check"
-                    style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem; display: block;"></i>
-                <h2 style="color: var(--accent-gold); margin-bottom: 1rem;">Profile Submitted Successfully!</h2>
-                <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Thank you for registering with The Black
-                    Book India.</p>
-                <p style="color: var(--text-muted); margin-bottom: 2rem;">Your reference ID is <strong
-                        id="submission-ref-id" style="color: var(--text-main);"></strong>. We'll be in touch after
-                    reviewing your profile.</p>
-                <button class="btn btn-secondary" onclick="location.reload()" style="margin: 0 auto;">Submit Another
-                    Profile</button>
             </div>
-        </main>
-    </div>
+        </div>
+    </section>
 
-    <script src="script.js"></script>
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 4: HOW TO JOIN
+    ══════════════════════════════════════════════════════════ -->
+    <section class="lp-section lp-section--cta" id="join">
+        <div class="lp-container lp-reveal">
+            <span class="lp-label">Get Started</span>
+            <h2 class="lp-section__heading">Claim Your Spot</h2>
+            <p class="lp-section__body lp-section__body--narrow">
+                Fill out our profile form. We review every submission carefully. Accepted profiles are listed in the
+                directory and made discoverable to brands and clients across India.
+            </p>
+            <a href="form.html" class="lp-btn lp-btn--filled" id="join-cta">
+                Submit Your Profile <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════════════════════════ -->
+    <footer class="lp-footer">
+        <div class="lp-container">
+            <div class="lp-footer__divider"></div>
+            <div class="lp-footer__inner">
+                <p class="lp-footer__logo">THE BLACK BOOK<span class="lp-gold">.</span></p>
+                <p class="lp-footer__copy">&copy; 2025 The Black Book India. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll-reveal using IntersectionObserver
+        const reveals = document.querySelectorAll('.lp-reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('lp-revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12 });
+        reveals.forEach(el => observer.observe(el));
+    </script>
 </body>
 
 </html>
