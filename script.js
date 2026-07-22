@@ -3,9 +3,11 @@
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzu5qkb7auI5GmhA_SpHV4BC8UJzCNW-tblios3iWnMXlB7gRF-dlSvFRc7WKdH-z34uA/exec';
 
 // SUPABASE CONFIGURATION
-// Replace these with your actual Supabase Project URL and Anon Key
-const SUPABASE_URL = 'https://fiwzgtxfabzlxxnqgjhd.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_uc54LqhKfYpHxK42zvDLIA_Bgz4WOtx';
+// Replace SUPABASE_ANON_KEY with your actual anon/public key from:
+// https://supabase.com/dashboard/project/puwwduyqqhkttswgdhpa/settings/api
+// The key must be a long JWT starting with "eyJ..."
+const SUPABASE_URL = 'https://puwwduyqqhkttswgdhpa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1d3dkdXlxcWhrdHRzd2dkaHBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMTYyODYsImV4cCI6MjA5OTU5MjI4Nn0.9QcwK9b6TscZUC7ZR1ZO85QSG5wgv3slWVFO0uh5vB0';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // ──────────────────────────────────────────────────────────────────
 
@@ -482,73 +484,115 @@ form.addEventListener('submit', async (e) => {
     prevBtn.disabled = true;
     statusMessage.className = 'hidden';
 
+    // Build the Supabase row payload (used regardless of Google Sheets outcome)
+    const supabasePayload = {
+        fname: data.fname,
+        lname: data.lname,
+        display_name: data.displayName,
+        city: data.city,
+        state: data.state,
+        work_location: data.workLocation,
+        phone: data.phone,
+        email: data.email,
+        primary_profession: data.primaryProfession,
+        other_profession: data.otherProfession,
+        has_secondary: data.hasSecondary,
+        secondary_roles: data.secondaryRoles,
+        genres: data.genres,
+        genre_generic: data.genreGeneric,
+        experience_years: data.yearsExperience,
+        career_stage: data.careerStage,
+        education: data.education,
+        institution: data.institution,
+        awards: data.awards,
+        has_publication: data.hasPublication,
+        publications: data.publications,
+        biz_type: data.bizType,
+        studio_name: data.studioName,
+        year_est: data.yearEst,
+        team_size: data.teamSize,
+        project_scale: data.projectScale,
+        budget_range: data.budgetRange,
+        clients: data.clients,
+        industries: data.industries,
+        website: data.website,
+        studio_website: data.studioWebsite,
+        instagram: data.instagram,
+        linkedin: data.linkedin,
+        behance: data.behance,
+        vimeo: data.vimeo,
+        youtube: data.youtube,
+        facebook: data.facebook,
+        twitter: data.twitter,
+        primary_platform: data.primaryPlatform,
+        insta_following: data.instaFollowing,
+        bio: data.bio,
+        working_style: data.workingStyle,
+        languages: data.languages,
+        open_to: data.openTo,
+        referral_source: data.referralSource,
+        photo_base64: data.photoBase64 || null,
+        open_to_features: data.openToFeatures,
+        consent_given: data.consentGiven
+    };
+
     try {
-        const response = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
+        // Run Google Sheets and Supabase submissions in parallel
+        const [sheetsResult, supabaseResult] = await Promise.allSettled([
+            // 1. Submit to Google Sheets via Apps Script
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            }).then(r => r.json()),
+
+            // 2. Submit to Supabase directly (runs independently)
+            supabaseClient
+                .from('submissions')
+                .insert([supabasePayload])
+        ]);
+
+        // Log outcomes for debugging
+        if (sheetsResult.status === 'fulfilled') {
+            const sheetsData = sheetsResult.value;
+            if (sheetsData.result === 'success' && sheetsData.id) {
+                // Backfill the submission_ref from Google Sheets if available
+                supabasePayload.submission_ref = sheetsData.id;
+                console.log('Google Sheets: submitted with ref', sheetsData.id);
+            } else {
+                console.warn('Google Sheets returned non-success:', sheetsData);
             }
-        });
+        } else {
+            console.error('Google Sheets submission failed:', sheetsResult.reason);
+        }
 
-        const result = await response.json();
-
-        if (result.result === 'success') {
-            // 2. Submit to Supabase (Dual Submission)
-            if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-                const { error: supabaseError } = await supabaseClient
-                    .from('submissions')
-                    .insert([{
-                        submission_ref: result.id,
-                        fname: data.fname,
-                        lname: data.lname,
-                        display_name: data.displayName,
-                        city: data.city,
-                        state: data.state,
-                        work_location: data.workLocation,
-                        phone: data.phone,
-                        email: data.email,
-                        primary_profession: data.primaryProfession,
-                        other_profession: data.otherProfession,
-                        has_secondary: data.hasSecondary,
-                        secondary_roles: data.secondaryRoles,
-                        genres: data.genres,
-                        genre_generic: data.genreGeneric,
-                        experience_years: data.experienceYears,
-                        institution: data.institution,
-                        awards: data.awards,
-                        has_publication: data.hasPublication,
-                        publications: data.publications,
-                        budget_range: data.budgetRange,
-                        clients: data.clients,
-                        industries: data.industries,
-                        website: data.website,
-                        studio_website: data.studioWebsite,
-                        instagram: data.instagram,
-                        vimeo: data.vimeo,
-                        linkedin: data.linkedin,
-                        bio: data.bio,
-                        open_to: data.openTo,
-                        photo_base64: data.photoBase64,
-                        open_to_features: data.openToFeatures === 'on' ? 'Yes' : data.openToFeatures,
-                        consent_given: data.consentGiven === 'on' ? 'Yes' : data.consentGiven
-                    }]);
-
-                if (supabaseError) {
-                    console.error('Supabase Insert Error:', supabaseError);
-                }
+        if (supabaseResult.status === 'fulfilled') {
+            const { error: supabaseError } = supabaseResult.value;
+            if (supabaseError) {
+                console.error('Supabase Insert Error:', supabaseError);
+            } else {
+                console.log('Supabase: row inserted successfully.');
             }
+        } else {
+            console.error('Supabase submission failed:', supabaseResult.reason);
+        }
 
-            // Clear saved draft on successful submission
+        // Show success if at least one destination accepted the submission
+        const sheetsOk = sheetsResult.status === 'fulfilled' && sheetsResult.value?.result === 'success';
+        const supabaseOk = supabaseResult.status === 'fulfilled' && !supabaseResult.value?.error;
+
+        if (sheetsOk || supabaseOk) {
             clearDraft();
 
-            // Hide form and progress bar, show success screen
+            // Use the Google Sheets ref if available, otherwise a local timestamp
+            const refId = sheetsResult.value?.id || `TBB-${Date.now()}`;
+            document.getElementById('submission-ref-id').textContent = refId;
+
             form.classList.add('hidden');
             progressWrapper.classList.add('hidden');
-            document.getElementById('submission-ref-id').textContent = result.id;
             document.getElementById('success-screen').classList.remove('hidden');
         } else {
-            throw new Error(result.message || 'Unknown error occurred.');
+            throw new Error('Both submission destinations failed. Please try again.');
         }
 
     } catch (error) {

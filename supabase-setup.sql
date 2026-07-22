@@ -32,12 +32,19 @@ CREATE TABLE IF NOT EXISTS public.submissions (
 
     -- Step 3: Experience & Credentials
     experience_years    TEXT,
+    career_stage        TEXT,
+    education           TEXT,
     institution         TEXT,
     awards              TEXT,
     has_publication     TEXT DEFAULT 'No',
     publications        TEXT,
 
-    -- Step 4: Work & Rates
+    -- Step 4: Business Details
+    biz_type        TEXT,
+    studio_name     TEXT,
+    year_est        TEXT,
+    team_size       TEXT,
+    project_scale   TEXT,
     budget_range    TEXT,
     clients         TEXT,
     industries      TEXT,
@@ -46,12 +53,21 @@ CREATE TABLE IF NOT EXISTS public.submissions (
     website         TEXT,
     studio_website  TEXT,
     instagram       TEXT,
-    vimeo           TEXT,
     linkedin        TEXT,
+    behance         TEXT,
+    vimeo           TEXT,
+    youtube         TEXT,
+    facebook        TEXT,
+    twitter         TEXT,
+    primary_platform TEXT,
+    insta_following TEXT,
 
     -- Step 6: Bio & Goals
     bio             TEXT,
+    working_style   TEXT,
+    languages       TEXT,
     open_to         TEXT,
+    referral_source TEXT,
 
     -- Step 7: Photo & Consent
     photo_base64    TEXT,
