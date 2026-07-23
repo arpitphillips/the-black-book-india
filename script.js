@@ -89,19 +89,27 @@ function updateSecondaryRoles(primaryVal) {
     }
 }
 
-function updateConditionalStep(primaryVal) {
+function updateConditionalStep() {
     const photoGroup = document.getElementById('photographer-questions');
     const musicGroup = document.getElementById('musician-questions');
     if (!photoGroup || !musicGroup) return;
 
-    if (primaryVal === 'photographer') {
+    const primaryVal = document.getElementById('primaryProfession').value;
+    const hasSecondary = document.querySelector('input[name="hasSecondary"]:checked')?.value === 'Yes';
+    const secondaryVal = hasSecondary ? document.getElementById('secondaryRoles').value : null;
+
+    const isPhotographer = primaryVal === 'photographer' || secondaryVal === 'photographer';
+    const isMusician = primaryVal === 'musician' || secondaryVal === 'musician';
+
+    if (isPhotographer) {
         photoGroup.classList.remove('hidden');
-        musicGroup.classList.add('hidden');
-    } else if (primaryVal === 'musician') {
-        musicGroup.classList.remove('hidden');
-        photoGroup.classList.add('hidden');
     } else {
         photoGroup.classList.add('hidden');
+    }
+
+    if (isMusician) {
+        musicGroup.classList.remove('hidden');
+    } else {
         musicGroup.classList.add('hidden');
     }
 }
@@ -220,7 +228,7 @@ function restoreDraft() {
         if (data.primaryProfession) {
             populateGenres(data.primaryProfession);
             updateSecondaryRoles(data.primaryProfession);
-            updateConditionalStep(data.primaryProfession);
+            updateConditionalStep();
         }
 
         // Restore dynamic links
@@ -253,6 +261,9 @@ function restoreDraft() {
             document.getElementById('consentGiven').checked = data._consentGiven;
         }
 
+        // Call updateConditionalStep again just in case secondary roles changed visibility
+        updateConditionalStep();
+
         // Restore conditional field visibility
         if (data.hasSecondary === 'Yes') toggleSecondaryRoles(true);
         if (data.hasPublication === 'Yes') togglePublications(true);
@@ -283,6 +294,7 @@ function toggleSecondaryRoles(show) {
         group.classList.add('hidden');
         document.getElementById('secondaryRoles').value = '';
     }
+    updateConditionalStep();
 }
 
 function togglePublications(show) {
@@ -309,7 +321,11 @@ document.getElementById('primaryProfession').addEventListener('change', function
 
     populateGenres(val);
     updateSecondaryRoles(val);
-    updateConditionalStep(val);
+    updateConditionalStep();
+});
+
+document.getElementById('secondaryRoles').addEventListener('change', function () {
+    updateConditionalStep();
 });
 
 // ── Photo Upload Handling ─────────────────────────────────────────
@@ -657,26 +673,22 @@ form.addEventListener('submit', async (e) => {
     if (!data.openToFeatures) data.openToFeatures = "No";
     if (!data.consentGiven) data.consentGiven = "No";
 
-    // Sanitize conditional data based on primary profession
-    if (data.primaryProfession === 'photographer') {
-        delete data.primaryInstrument;
-        delete data.liveExperience;
-        delete data.recordLabel;
-    } else if (data.primaryProfession === 'musician') {
+    // Sanitize conditional data based on primary AND secondary profession
+    const isPhotographer = data.primaryProfession === 'photographer' || (data.hasSecondary === 'Yes' && data.secondaryRoles === 'photographer');
+    const isMusician = data.primaryProfession === 'musician' || (data.hasSecondary === 'Yes' && data.secondaryRoles === 'musician');
+
+    if (!isPhotographer) {
         delete data.equipment;
         delete data.hasStudio;
         delete data.hasPublication;
         delete data.publications;
         data.hasPublication = "No"; // reset default
-    } else {
+    }
+
+    if (!isMusician) {
         delete data.primaryInstrument;
         delete data.liveExperience;
         delete data.recordLabel;
-        delete data.equipment;
-        delete data.hasStudio;
-        delete data.hasPublication;
-        delete data.publications;
-        data.hasPublication = "No"; // reset default
     }
 
     // Anti-spam: include honeypot value and elapsed time
