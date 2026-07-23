@@ -16,8 +16,46 @@ const PAGE_LOAD_TIME = Date.now();
 
 let currentStep = 1;
 let previousStep = 1;
-const totalSteps = 7;
+const totalSteps = 6;
 const DRAFT_KEY = 'blackbook_draft';
+
+const specializations = {
+    photographer: [
+        "Wedding Photographer", "Portrait & Family Photographer", "Lifestyle Photographer", 
+        "Product & E-commerce Photographer", "Food Photographer", "Fashion Photographer", 
+        "Real Estate & Architectural Photographer", "Wildlife Photographer", "Landscape Photographer", 
+        "Travel Photographer", "Aerial/Drone Photographer", "Street Photographer", 
+        "Documentary/Photojournalist", "Fine Art Photographer", "Event Photographer"
+    ],
+    musician: [
+        "Musician/Instrumentalist", "Singer/Vocalist", "Composer/Songwriter", 
+        "Music Director/Conductor", "Music Teacher/Educator", "Music Producer", 
+        "Audio/Sound Engineer", "Vocal Producer", "Playback Engineer", 
+        "Instrument Tech/Backline Tech", "Artist Manager", "A&R (Artist and Repertoire) Representative", 
+        "Booking Agent/Talent Buyer", "Tour Manager", "Music Publisher/Administrator", 
+        "Music Journalist/Critic", "Marketing/Public Relations (PR) Specialist", "Rights Clearance Professional"
+    ]
+};
+
+function populateGenres(profession) {
+    const genresSelect = document.getElementById('genres');
+    const genresGroup = document.getElementById('genresGroup');
+    if (!genresSelect || !genresGroup) return;
+    
+    genresSelect.innerHTML = '<option value="" disabled selected>Select your specialization...</option>';
+    
+    if (specializations[profession]) {
+        genresGroup.classList.remove('hidden');
+        specializations[profession].forEach(spec => {
+            const opt = document.createElement('option');
+            opt.value = spec;
+            opt.textContent = spec;
+            genresSelect.appendChild(opt);
+        });
+    } else {
+        genresGroup.classList.add('hidden');
+    }
+}
 
 // DOM Elements
 const form = document.getElementById('submission-form');
@@ -53,6 +91,10 @@ function restoreDraft() {
         const raw = localStorage.getItem(DRAFT_KEY);
         if (!raw) return;
         const data = JSON.parse(raw);
+
+        if (data.primaryProfession) {
+            populateGenres(data.primaryProfession);
+        }
 
         // Restore text/select fields
         Object.entries(data).forEach(([key, value]) => {
@@ -117,15 +159,19 @@ function togglePublications(show) {
     }
 }
 
-// Watch Primary Profession for "Other"
+// Watch Primary Profession for "Other" and dynamic genres
 document.getElementById('primaryProfession').addEventListener('change', function (e) {
+    const val = e.target.value;
     const group = document.getElementById('otherProfessionGroup');
-    if (e.target.value === 'other') {
+    
+    if (val === 'other') {
         group.classList.remove('hidden');
     } else {
         group.classList.add('hidden');
         document.getElementById('otherProfession').value = '';
     }
+
+    populateGenres(val);
 });
 
 // ── Photo Upload Handling ─────────────────────────────────────────

@@ -47,7 +47,6 @@
                     <span class="step-indicator">4</span>
                     <span class="step-indicator">5</span>
                     <span class="step-indicator">6</span>
-                    <span class="step-indicator">7</span>
                 </div>
             </div>
 
@@ -124,33 +123,7 @@
                         <select id="primaryProfession" name="primaryProfession" required>
                             <option value="" disabled selected>Select your primary role...</option>
                             <option value="photographer">Photographer</option>
-                            <option value="filmmaker">Filmmaker</option>
-                            <option value="cinematographer">Cinematographer</option>
-                            <option value="camera-operator">Camera Operator</option>
-                            <option value="makeup-artist">Makeup Artist</option>
-                            <option value="hair-stylist">Hair Stylist</option>
-                            <option value="costume-stylist">Costume Stylist</option>
-                            <option value="art-director">Art Director</option>
-                            <option value="creative-director">Creative Director</option>
-                            <option value="graphic-designer">Graphic Designer</option>
-                            <option value="motion-designer">Motion Designer</option>
-                            <option value="actor">Actor</option>
-                            <option value="voice-artist">Voice Artist</option>
-                            <option value="director">Director</option>
-                            <option value="writer-script">Writer (Script)</option>
-                            <option value="copywriter">Copywriter</option>
-                            <option value="lyricist">Lyricist</option>
-                            <option value="singer">Singer</option>
-                            <option value="composer">Composer</option>
-                            <option value="sound-designer">Sound Designer</option>
-                            <option value="editor-video">Video Editor</option>
-                            <option value="editor-photo">Photo Editor</option>
-                            <option value="set-designer">Set Designer</option>
-                            <option value="producer">Producer</option>
-                            <option value="pr-content">PR / Content Creator</option>
-                            <option value="stage-performer">Stage Performer</option>
-                            <option value="dancer-choreographer">Dancer / Choreographer</option>
-                            <option value="illustrator">Illustrator</option>
+                            <option value="musician">Musician</option>
                             <option value="other">Other</option>
                         </select>
                     </div>
@@ -175,20 +148,18 @@
                         <input type="text" id="secondaryRoles" name="secondaryRoles"
                             placeholder="e.g. Photographer, Drone Operator">
                     </div>
-                </div>
 
-                <!-- STEP 3: SPECIALISATION -->
-                <div class="form-step" id="step-3">
-                    <div class="step-header">
+                    <div class="step-header mt-2">
                         <h2>Specialisation</h2>
                         <p>Help clients find you by describing what you do best.</p>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="genresGroup">
                         <label for="genres">Specialisation / Genres</label>
-                        <input type="text" id="genres" name="genres"
-                            placeholder="e.g. Portrait, Commercial, Documentary">
-                        <span class="help-text">Quick searchable tags — comma separated.</span>
+                        <select id="genres" name="genres">
+                            <option value="" disabled selected>Select your specialization...</option>
+                        </select>
+                        <span class="help-text">Select your primary niche.</span>
                     </div>
 
                     <div class="form-group">
@@ -200,8 +171,8 @@
                     </div>
                 </div>
 
-                <!-- STEP 4: EXPERIENCE -->
-                <div class="form-step" id="step-4">
+                <!-- STEP 3: EXPERIENCE -->
+                <div class="form-step" id="step-3">
                     <div class="step-header">
                         <h2>Experience & Accolades</h2>
                         <p>Tell us about your journey and achievements.</p>
@@ -266,8 +237,8 @@
                     </div>
                 </div>
 
-                <!-- STEP 5: BUSINESS -->
-                <div class="form-step" id="step-5">
+                <!-- STEP 4: BUSINESS -->
+                <div class="form-step" id="step-4">
                     <div class="step-header">
                         <h2>Business Details</h2>
                         <p>How you operate professionally.</p>
@@ -333,8 +304,8 @@
                     </div>
                 </div>
 
-                <!-- STEP 6: SOCIAL -->
-                <div class="form-step" id="step-6">
+                <!-- STEP 5: SOCIAL -->
+                <div class="form-step" id="step-5">
                     <div class="step-header">
                         <h2>Online Presence</h2>
                         <p>Your websites, portfolios, and social profiles — all in one place.</p>
@@ -411,8 +382,8 @@
                     </div>
                 </div>
 
-                <!-- STEP 7: BIO & PREFERENCES -->
-                <div class="form-step" id="step-7">
+                <!-- STEP 6: BIO & PREFERENCES -->
+                <div class="form-step" id="step-6">
                     <div class="step-header">
                         <h2>Bio & Preferences</h2>
                         <p>Final details to complete your profile.</p>
