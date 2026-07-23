@@ -60,6 +60,11 @@ var HEADERS = [
   'Education',
   'Institution',
   'Awards & Recognitions',
+  'Equipment',
+  'Has Studio',
+  'Primary Instrument',
+  'Live Experience',
+  'Record Label',
   'Published Work',
   'Publications Listed',
 
@@ -82,6 +87,9 @@ var HEADERS = [
   'Behance',
   'Vimeo',
   'Twitter / X',
+  'Spotify',
+  'Soundcloud',
+  'Apple Music',
   'Primary Platform',
   'Instagram Following',
 
@@ -177,6 +185,11 @@ function doPost(e) {
       clean(data.education),
       clean(data.institution),
       clean(data.awards),
+      clean(data.equipment),
+      clean(data.hasStudio),
+      clean(data.primaryInstrument),
+      clean(data.liveExperience),
+      clean(data.recordLabel),
       clean(data.hasPublication),
       clean(data.publications),
 
@@ -199,6 +212,9 @@ function doPost(e) {
       clean(data.behance),
       clean(data.vimeo),
       clean(data.twitter),
+      clean(data.spotify),
+      clean(data.soundcloud),
+      clean(data.appleMusic),
       clean(data.primaryPlatform),
       clean(data.instaFollowing),
 

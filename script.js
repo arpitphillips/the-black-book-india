@@ -16,7 +16,7 @@ const PAGE_LOAD_TIME = Date.now();
 
 let currentStep = 1;
 let previousStep = 1;
-const totalSteps = 6;
+const totalSteps = 5;
 const DRAFT_KEY = 'blackbook_draft';
 
 const specializations = {
@@ -89,6 +89,99 @@ function updateSecondaryRoles(primaryVal) {
     }
 }
 
+function updateConditionalStep(primaryVal) {
+    const photoGroup = document.getElementById('photographer-questions');
+    const musicGroup = document.getElementById('musician-questions');
+    if (!photoGroup || !musicGroup) return;
+
+    if (primaryVal === 'photographer') {
+        photoGroup.classList.remove('hidden');
+        musicGroup.classList.add('hidden');
+    } else if (primaryVal === 'musician') {
+        musicGroup.classList.remove('hidden');
+        photoGroup.classList.add('hidden');
+    } else {
+        photoGroup.classList.add('hidden');
+        musicGroup.classList.add('hidden');
+    }
+}
+
+// ── Dynamic Link Builder ──────────────────────────────────────────
+const addedLinks = {}; // Store added links as { platform: url }
+
+function renderAddedLinks() {
+    const container = document.getElementById('addedLinksContainer');
+    const hiddenContainer = document.getElementById('hiddenLinksContainer');
+    if (!container || !hiddenContainer) return;
+
+    container.innerHTML = '';
+    hiddenContainer.innerHTML = '';
+
+    Object.entries(addedLinks).forEach(([platform, url]) => {
+        // Render Badge
+        const badge = document.createElement('div');
+        badge.className = 'link-badge';
+        // Capitalize platform name slightly for display
+        let platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
+        if (platform === 'appleMusic') platformName = 'Apple Music';
+        if (platform === 'studioWebsite') platformName = 'Studio Website';
+        
+        badge.innerHTML = `
+            <span><strong>${platformName}</strong>: ${url}</span>
+            <button type="button" class="remove-link-btn" data-platform="${platform}">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        `;
+        container.appendChild(badge);
+
+        // Render Hidden Input
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = platform;
+        hiddenInput.value = url;
+        hiddenContainer.appendChild(hiddenInput);
+    });
+
+    // Add remove listeners
+    document.querySelectorAll('.remove-link-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const plat = e.currentTarget.getAttribute('data-platform');
+            delete addedLinks[plat];
+            renderAddedLinks();
+            saveDraft();
+        });
+    });
+}
+
+function initLinkBuilder() {
+    const addBtn = document.getElementById('addLinkBtn');
+    if (!addBtn) return;
+    
+    addBtn.addEventListener('click', () => {
+        const platformSelect = document.getElementById('linkPlatform');
+        const urlInput = document.getElementById('linkUrl');
+        
+        const platform = platformSelect.value;
+        const url = urlInput.value.trim();
+
+        if (!url) {
+            alert('Please enter a URL first.');
+            return;
+        }
+
+        // Add to our dictionary
+        addedLinks[platform] = url;
+        
+        // Reset inputs
+        urlInput.value = '';
+        platformSelect.selectedIndex = 0; // Reset to first option
+
+        // Re-render
+        renderAddedLinks();
+        saveDraft();
+    });
+}
+
 // DOM Elements
 const form = document.getElementById('submission-form');
 const nextBtn = document.getElementById('next-btn');
@@ -127,7 +220,17 @@ function restoreDraft() {
         if (data.primaryProfession) {
             populateGenres(data.primaryProfession);
             updateSecondaryRoles(data.primaryProfession);
+            updateConditionalStep(data.primaryProfession);
         }
+
+        // Restore dynamic links
+        const possiblePlatforms = ['website', 'studioWebsite', 'instagram', 'linkedin', 'behance', 'vimeo', 'youtube', 'facebook', 'twitter', 'spotify', 'soundcloud', 'appleMusic'];
+        possiblePlatforms.forEach(plat => {
+            if (data[plat]) {
+                addedLinks[plat] = data[plat];
+            }
+        });
+        renderAddedLinks();
 
         // Restore text/select fields
         Object.entries(data).forEach(([key, value]) => {
@@ -206,6 +309,7 @@ document.getElementById('primaryProfession').addEventListener('change', function
 
     populateGenres(val);
     updateSecondaryRoles(val);
+    updateConditionalStep(val);
 });
 
 // ── Photo Upload Handling ─────────────────────────────────────────
@@ -553,6 +657,28 @@ form.addEventListener('submit', async (e) => {
     if (!data.openToFeatures) data.openToFeatures = "No";
     if (!data.consentGiven) data.consentGiven = "No";
 
+    // Sanitize conditional data based on primary profession
+    if (data.primaryProfession === 'photographer') {
+        delete data.primaryInstrument;
+        delete data.liveExperience;
+        delete data.recordLabel;
+    } else if (data.primaryProfession === 'musician') {
+        delete data.equipment;
+        delete data.hasStudio;
+        delete data.hasPublication;
+        delete data.publications;
+        data.hasPublication = "No"; // reset default
+    } else {
+        delete data.primaryInstrument;
+        delete data.liveExperience;
+        delete data.recordLabel;
+        delete data.equipment;
+        delete data.hasStudio;
+        delete data.hasPublication;
+        delete data.publications;
+        data.hasPublication = "No"; // reset default
+    }
+
     // Anti-spam: include honeypot value and elapsed time
     data._honeypot = data.company || '';
     delete data.company;
@@ -604,6 +730,14 @@ form.addEventListener('submit', async (e) => {
         youtube: data.youtube,
         facebook: data.facebook,
         twitter: data.twitter,
+        spotify: data.spotify,
+        soundcloud: data.soundcloud,
+        apple_music: data.appleMusic,
+        equipment: data.equipment,
+        has_studio: data.hasStudio,
+        primary_instrument: data.primaryInstrument,
+        live_experience: data.liveExperience,
+        record_label: data.recordLabel,
         primary_platform: data.primaryPlatform,
         insta_following: data.instaFollowing,
         bio: data.bio,
@@ -705,5 +839,6 @@ phoneInput.addEventListener('input', (e) => {
 });
 
 // ── Initialize ────────────────────────────────────────────────────
+initLinkBuilder();
 restoreDraft();
 updateUI();

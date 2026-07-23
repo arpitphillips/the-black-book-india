@@ -46,7 +46,6 @@
                     <span class="step-indicator">3</span>
                     <span class="step-indicator">4</span>
                     <span class="step-indicator">5</span>
-                    <span class="step-indicator">6</span>
                 </div>
             </div>
 
@@ -175,11 +174,11 @@
                     </div>
                 </div>
 
-                <!-- STEP 3: EXPERIENCE -->
+                <!-- STEP 3: PROFESSION DETAILS -->
                 <div class="form-step" id="step-3">
                     <div class="step-header">
-                        <h2>Experience & Accolades</h2>
-                        <p>Tell us about your journey and achievements.</p>
+                        <h2>Profession Details</h2>
+                        <p>Tell us about your experience and specifics of your craft.</p>
                     </div>
 
                     <div class="form-group row">
@@ -224,28 +223,69 @@
                             placeholder="List any notable awards..."></textarea>
                     </div>
 
-                    <div class="form-group radio-group">
-                        <label>Do you have published work?</label>
-                        <div class="options">
-                            <label><input type="radio" name="hasPublication" value="Yes"
-                                    onchange="togglePublications(true)"> Yes</label>
-                            <label><input type="radio" name="hasPublication" value="No"
-                                    onchange="togglePublications(false)" checked> No</label>
+                    <!-- Photographer Specific Questions -->
+                    <div id="photographer-questions" class="conditional-block hidden">
+                        <div class="step-header mt-2">
+                            <h3>Photographer Details</h3>
+                        </div>
+                        <div class="form-group">
+                            <label for="equipment">Equipment / Camera System</label>
+                            <input type="text" id="equipment" name="equipment" placeholder="e.g. Sony A7IV, Profoto Lights">
+                        </div>
+                        <div class="form-group radio-group">
+                            <label>Do you have a physical studio?</label>
+                            <div class="options">
+                                <label><input type="radio" name="hasStudio" value="Yes"> Yes</label>
+                                <label><input type="radio" name="hasStudio" value="No" checked> No</label>
+                            </div>
+                        </div>
+                        <div class="form-group radio-group">
+                            <label>Do you have published work?</label>
+                            <div class="options">
+                                <label><input type="radio" name="hasPublication" value="Yes"
+                                        onchange="togglePublications(true)"> Yes</label>
+                                <label><input type="radio" name="hasPublication" value="No"
+                                        onchange="togglePublications(false)" checked> No</label>
+                            </div>
+                        </div>
+                        <div class="form-group hidden" id="publicationsGroup">
+                            <label for="publications">Publications Listed</label>
+                            <textarea id="publications" name="publications" rows="2"
+                                placeholder="e.g. Vogue India, GQ, Rolling Stone"></textarea>
                         </div>
                     </div>
 
-                    <div class="form-group hidden" id="publicationsGroup">
-                        <label for="publications">Publications Listed</label>
-                        <textarea id="publications" name="publications" rows="2"
-                            placeholder="e.g. Vogue India, GQ, Rolling Stone"></textarea>
+                    <!-- Musician Specific Questions -->
+                    <div id="musician-questions" class="conditional-block hidden">
+                        <div class="step-header mt-2">
+                            <h3>Musician Details</h3>
+                        </div>
+                        <div class="form-group">
+                            <label for="primaryInstrument">Primary Instrument / Role</label>
+                            <input type="text" id="primaryInstrument" name="primaryInstrument" placeholder="e.g. Vocals, Guitar, Producer">
+                        </div>
+                        <div class="form-group">
+                            <label for="liveExperience">Live Performance Experience</label>
+                            <select id="liveExperience" name="liveExperience">
+                                <option value="" disabled selected>Select...</option>
+                                <option value="None">None</option>
+                                <option value="Club Gigs">Club Gigs</option>
+                                <option value="Festivals">Festivals</option>
+                                <option value="Arena / Stadium">Arena / Stadium</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recordLabel">Record Label / Affiliation</label>
+                            <input type="text" id="recordLabel" name="recordLabel" placeholder="e.g. Independent, Universal, etc.">
+                        </div>
                     </div>
                 </div>
 
-                <!-- STEP 4: BUSINESS -->
+                <!-- STEP 4: BUSINESS & ONLINE PRESENCE -->
                 <div class="form-step" id="step-4">
                     <div class="step-header">
-                        <h2>Business Details</h2>
-                        <p>How you operate professionally.</p>
+                        <h2>Business & Online Presence</h2>
+                        <p>How you operate and where clients can find you online.</p>
                     </div>
 
                     <div class="form-group row">
@@ -306,56 +346,48 @@
                         <textarea id="industries" name="industries" rows="2"
                             placeholder="e.g. Fashion, Tech, F&B"></textarea>
                     </div>
-                </div>
 
-                <!-- STEP 5: SOCIAL -->
-                <div class="form-step" id="step-5">
+                    <hr class="section-divider mt-2 mb-2">
+
                     <div class="step-header">
                         <h2>Online Presence</h2>
-                        <p>Your websites, portfolios, and social profiles — all in one place.</p>
+                        <p>Add your website, portfolio, and social profiles.</p>
                     </div>
 
-                    <div class="form-group row">
-                        <div class="col">
-                            <label for="website"><i class="fa-solid fa-globe"></i> Personal Website</label>
-                            <input type="url" id="website" name="website" placeholder="https://yoursite.com">
+                    <!-- Dynamic Link Builder -->
+                    <div class="link-builder-container">
+                        <div class="form-group row" style="align-items: flex-end;">
+                            <div class="col" style="flex: 1;">
+                                <label for="linkPlatform">Platform</label>
+                                <select id="linkPlatform">
+                                    <option value="website">Personal Website</option>
+                                    <option value="studioWebsite">Studio Website</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="linkedin">LinkedIn</option>
+                                    <option value="behance">Behance</option>
+                                    <option value="vimeo">Vimeo</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="facebook">Facebook</option>
+                                    <option value="twitter">Twitter / X</option>
+                                    <option value="spotify">Spotify</option>
+                                    <option value="soundcloud">SoundCloud</option>
+                                    <option value="appleMusic">Apple Music</option>
+                                </select>
+                            </div>
+                            <div class="col" style="flex: 2;">
+                                <label for="linkUrl">URL</label>
+                                <input type="url" id="linkUrl" placeholder="https://...">
+                            </div>
+                            <div class="col" style="flex: 0 0 auto;">
+                                <button type="button" class="btn btn-secondary" id="addLinkBtn" style="margin-bottom: 0;">Add Link</button>
+                            </div>
                         </div>
-                        <div class="col">
-                            <label for="studioWebsite"><i class="fa-solid fa-building"></i> Studio / Company
-                                Website</label>
-                            <input type="url" id="studioWebsite" name="studioWebsite" placeholder="https://studio.com">
+                        <div id="addedLinksContainer" class="added-links-grid mt-2">
+                            <!-- Badges will be rendered here via JS -->
                         </div>
-                    </div>
-
-                    <div class="social-grid">
-                        <div class="form-group">
-                            <label for="instagram"><i class="fa-brands fa-instagram"></i> Instagram</label>
-                            <input type="url" id="instagram" name="instagram" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="linkedin"><i class="fa-brands fa-linkedin"></i> LinkedIn</label>
-                            <input type="url" id="linkedin" name="linkedin" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="behance"><i class="fa-brands fa-behance"></i> Behance</label>
-                            <input type="url" id="behance" name="behance" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="vimeo"><i class="fa-brands fa-vimeo"></i> Vimeo</label>
-                            <input type="url" id="vimeo" name="vimeo" placeholder="Profile URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="youtube"><i class="fa-brands fa-youtube"></i> YouTube</label>
-                            <input type="url" id="youtube" name="youtube" placeholder="Channel URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="facebook"><i class="fa-brands fa-facebook"></i> Facebook</label>
-                            <input type="url" id="facebook" name="facebook" placeholder="Page URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="twitter"><i class="fa-brands fa-x-twitter"></i> Twitter / X</label>
-                            <input type="url" id="twitter" name="twitter" placeholder="Profile URL">
-                        </div>
+                        
+                        <!-- Hidden inputs generated dynamically -->
+                        <div id="hiddenLinksContainer"></div>
                     </div>
 
                     <div class="form-group row mt-2">
@@ -386,8 +418,8 @@
                     </div>
                 </div>
 
-                <!-- STEP 6: BIO & PREFERENCES -->
-                <div class="form-step" id="step-6">
+                <!-- STEP 5: BIO & PREFERENCES -->
+                <div class="form-step" id="step-5">
                     <div class="step-header">
                         <h2>Bio & Preferences</h2>
                         <p>Final details to complete your profile.</p>

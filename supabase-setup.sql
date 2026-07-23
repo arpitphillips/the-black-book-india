@@ -36,6 +36,11 @@ CREATE TABLE IF NOT EXISTS public.submissions (
     education           TEXT,
     institution         TEXT,
     awards              TEXT,
+    equipment           TEXT,
+    has_studio          TEXT,
+    primary_instrument  TEXT,
+    live_experience     TEXT,
+    record_label        TEXT,
     has_publication     TEXT DEFAULT 'No',
     publications        TEXT,
 
@@ -59,6 +64,9 @@ CREATE TABLE IF NOT EXISTS public.submissions (
     youtube         TEXT,
     facebook        TEXT,
     twitter         TEXT,
+    spotify         TEXT,
+    soundcloud      TEXT,
+    apple_music     TEXT,
     primary_platform TEXT,
     insta_following TEXT,
 
@@ -116,3 +124,18 @@ CREATE INDEX IF NOT EXISTS idx_submissions_status ON public.submissions (status)
 -- ============================================================
 -- DONE! Your table is ready to receive submissions.
 -- ============================================================
+
+-- ============================================================
+-- MIGRATION SCRIPT (Run this if you already created the table)
+-- ============================================================
+/*
+ALTER TABLE public.submissions 
+ADD COLUMN IF NOT EXISTS equipment TEXT,
+ADD COLUMN IF NOT EXISTS has_studio TEXT,
+ADD COLUMN IF NOT EXISTS primary_instrument TEXT,
+ADD COLUMN IF NOT EXISTS live_experience TEXT,
+ADD COLUMN IF NOT EXISTS record_label TEXT,
+ADD COLUMN IF NOT EXISTS spotify TEXT,
+ADD COLUMN IF NOT EXISTS soundcloud TEXT,
+ADD COLUMN IF NOT EXISTS apple_music TEXT;
+*/
