@@ -57,6 +57,38 @@ function populateGenres(profession) {
     }
 }
 
+function updateSecondaryRoles(primaryVal) {
+    const secondarySelect = document.getElementById('secondaryRoles');
+    if (!secondarySelect) return;
+    
+    const currentVal = secondarySelect.value;
+    
+    // Define all options
+    const allOptions = [
+        { value: 'photographer', text: 'Photographer' },
+        { value: 'musician', text: 'Musician' },
+        { value: 'other', text: 'Other' }
+    ];
+    
+    // Clear current options
+    secondarySelect.innerHTML = '<option value="" disabled selected>Select your secondary role...</option>';
+    
+    // Add non-matching options
+    allOptions.forEach(opt => {
+        if (opt.value !== primaryVal) {
+            const el = document.createElement('option');
+            el.value = opt.value;
+            el.textContent = opt.text;
+            secondarySelect.appendChild(el);
+        }
+    });
+    
+    // Restore previous value if it's still valid
+    if (currentVal && currentVal !== primaryVal) {
+        secondarySelect.value = currentVal;
+    }
+}
+
 // DOM Elements
 const form = document.getElementById('submission-form');
 const nextBtn = document.getElementById('next-btn');
@@ -94,6 +126,7 @@ function restoreDraft() {
 
         if (data.primaryProfession) {
             populateGenres(data.primaryProfession);
+            updateSecondaryRoles(data.primaryProfession);
         }
 
         // Restore text/select fields
@@ -172,6 +205,7 @@ document.getElementById('primaryProfession').addEventListener('change', function
     }
 
     populateGenres(val);
+    updateSecondaryRoles(val);
 });
 
 // ── Photo Upload Handling ─────────────────────────────────────────

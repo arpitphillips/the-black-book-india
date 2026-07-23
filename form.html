@@ -145,8 +145,12 @@
 
                     <div class="form-group hidden" id="secondaryRolesGroup">
                         <label for="secondaryRoles">Secondary Roles</label>
-                        <input type="text" id="secondaryRoles" name="secondaryRoles"
-                            placeholder="e.g. Photographer, Drone Operator">
+                        <select id="secondaryRoles" name="secondaryRoles">
+                            <option value="" disabled selected>Select your secondary role...</option>
+                            <option value="photographer">Photographer</option>
+                            <option value="musician">Musician</option>
+                            <option value="other">Other</option>
+                        </select>
                     </div>
 
                     <div class="step-header mt-2">
